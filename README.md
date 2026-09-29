@@ -1,16 +1,16 @@
 # Podium Air Website
 
-The official consumer website for [Podium Air](https://github.com/kaizen-flims/Podium-Air). It is a small, dependency-free static site designed for Cloudflare Pages.
+The official consumer website for [Podium Air](https://github.com/kaizen-flims/Podium-Air). It is a small, dependency-free static site deployed through GitHub Pages.
 
 ## Local preview
 
 From this directory, run `python3 -m http.server 8080`, then open `http://localhost:8080`. No install is needed. For the production output, run `npm run build`.
 
-## Cloudflare Pages
+## GitHub Pages
 
-Connect this repository to a Cloudflare Pages project. Select **no framework**, build command `npm run build`, and output directory `dist`. The build copies only the public site files; repository metadata and sources outside that allowlist are not published. Choose the project subdomain in Cloudflare; `podiumair.pages.dev` is an intended address, not a reserved one.
+The repository's **Settings → Pages → Build and deployment** source is **GitHub Actions**. Pushing to `main` runs `.github/workflows/pages.yml`, which builds `dist` and publishes it at [kaizen-flims.github.io/Podium-Air-Website](https://kaizen-flims.github.io/Podium-Air-Website/). The build copies only public site files; source and repository metadata outside that allowlist are not published. You can also start the workflow manually in the Actions tab.
 
-Cloudflare supplies `CF_PAGES_URL` during the build, so the sitemap uses the actual deployment address. If you later add a permanent custom domain, set `SITE_URL` to its HTTPS origin in the Pages environment settings to use that instead. The social image uses an absolute GitHub raw URL.
+The workflow supplies `SITE_URL` so the sitemap includes the repository path. If you change the Pages address or add a custom domain, update that variable in the workflow. Relative asset and navigation links work at both a project path and a domain root. The social image uses an absolute GitHub raw URL.
 
 ## Releases
 

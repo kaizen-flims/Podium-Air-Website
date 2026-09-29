@@ -7,16 +7,17 @@ for (const file of ['index.html', 'privacy.html', 'styles.css', 'script.js', 'ro
 }
 await cp('assets', 'dist/assets', { recursive: true });
 
-// Cloudflare supplies the actual deployment URL. SITE_URL can override it after
-// a permanent custom address is confirmed; the source never guesses a domain.
+// SITE_URL may include a project path, as on GitHub Pages. Cloudflare supplies
+// CF_PAGES_URL when the site is built there instead.
 const suppliedUrl = process.env.SITE_URL || process.env.CF_PAGES_URL;
 if (suppliedUrl) {
   const url = new URL(suppliedUrl);
   if (url.protocol !== 'https:') throw new Error('SITE_URL must use HTTPS');
-  const origin = url.origin;
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${origin}/</loc></url>\n  <url><loc>${origin}/privacy.html</loc></url>\n</urlset>\n`;
+  if (url.search || url.hash) throw new Error('SITE_URL must not include a query or fragment');
+  const base = `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${base}/</loc></url>\n  <url><loc>${base}/privacy.html</loc></url>\n</urlset>\n`;
   await writeFile('dist/sitemap.xml', sitemap);
   const robots = await readFile('dist/robots.txt', 'utf8');
-  await writeFile('dist/robots.txt', `${robots.trimEnd()}\nSitemap: ${origin}/sitemap.xml\n`);
+  await writeFile('dist/robots.txt', `${robots.trimEnd()}\nSitemap: ${base}/sitemap.xml\n`);
 }
 console.log('Podium Air static site ready in dist/');

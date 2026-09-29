@@ -36,17 +36,17 @@
 
   const screens = {
     home: {
-      src: '/assets/update-screen.jpg',
+      src: 'assets/update-screen.jpg',
       alt: 'Real Podium Air Listen Now screen showing music recommendations and its in-app update prompt',
       caption: 'Listen Now brings your recent tracks, albums and quick picks together.', index: '01'
     },
     accounts: {
-      src: '/assets/account-screen.jpg',
+      src: 'assets/account-screen.jpg',
       alt: 'Real Podium Air account switcher over the Listen Now screen',
       caption: 'Switch accounts without losing your place in the music.', index: '02'
     },
     settings: {
-      src: '/assets/settings-screen.jpg',
+      src: 'assets/settings-screen.jpg',
       alt: 'Real Podium Air settings screen with playback and language controls',
       caption: 'Fine-tune playback and make the app feel yours.', index: '03'
     }
