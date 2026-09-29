@@ -93,6 +93,41 @@
 
   document.getElementById('year').textContent = new Date().getFullYear();
   if ('IntersectionObserver' in window && !reduced) {
+    // Observe once per element. Scroll never runs a JavaScript animation loop;
+    // CSS only animates opacity and transform after an element enters view.
+    const revealGroups = [
+      ['.hero-copy', '.eyebrow, h1, .hero-lead, .hero-actions'],
+      ['.statement', '.section-intro, h2, .statement-bottom > p, .feature-lines > div'],
+      ['.showcase-copy', '.section-intro, h2, .showcase-lead, .showcase-tabs'],
+      ['.details', '.section-intro, h2, .detail-stack article'],
+      ['.journey-head', '.section-intro, h2, p'],
+      ['.attempts-copy', '.story-kicker, h3, p'],
+      ['.pivot', '.story-kicker, h3, p:not(.story-kicker), .name-transition'],
+      ['.weeks', '.story-kicker, .weeks-track, h3, p, .text-link'],
+      ['.ecosystem', '.section-intro, h2, .eco-item'],
+      ['.final-cta', ':scope > img, :scope > .eyebrow, :scope > h2, :scope > .button, :scope > .cta-version']
+    ];
+    const revealObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+
+    for (const [rootSelector, itemSelector] of revealGroups) {
+      const root = document.querySelector(rootSelector);
+      if (!root) continue;
+      root.querySelectorAll(itemSelector).forEach((item, index) => {
+        // The hero starts as the intro clears; later groups stagger briefly.
+        const heroWait = rootSelector === '.hero-copy' ? Math.max(0, 2050 - performance.now()) : 0;
+        item.style.setProperty('--reveal-delay', `${Math.round(heroWait + Math.min(index * 70, 350))}ms`);
+        item.classList.add('scroll-reveal');
+        revealObserver.observe(item);
+      });
+    }
+    document.documentElement.classList.add('motion-ready');
+
     const attemptCells = document.querySelectorAll('.attempt-grid > span');
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
