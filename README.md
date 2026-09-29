@@ -10,7 +10,7 @@ From this directory, run `python3 -m http.server 8080`, then open `http://localh
 
 Connect this repository to a Cloudflare Pages project. Select **no framework**, build command `npm run build`, and output directory `dist`. The build copies only the public site files; repository metadata and sources outside that allowlist are not published. Choose the project subdomain in Cloudflare; `podiumair.pages.dev` is an intended address, not a reserved one.
 
-Before publishing on a different address, replace `https://podiumair.pages.dev` in `robots.txt` and `sitemap.xml` with the confirmed site URL. The social image uses a stable absolute GitHub raw URL, which becomes available after this repository is created.
+Cloudflare supplies `CF_PAGES_URL` during the build, so the sitemap uses the actual deployment address. If you later add a permanent custom domain, set `SITE_URL` to its HTTPS origin in the Pages environment settings to use that instead. The social image uses an absolute GitHub raw URL.
 
 ## Releases
 
