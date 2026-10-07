@@ -1,9 +1,10 @@
 import { cp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { fetchDownloadTotal } from '../download-counter.js';
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['index.html', 'privacy.html', 'styles.css', 'script.js', 'robots.txt', '_headers']) {
+for (const file of ['index.html', 'privacy.html', 'styles.css', 'script.js', 'download-counter.js', 'robots.txt', '_headers']) {
   await cp(file, `dist/${file}`);
 }
 await cp('assets', 'dist/assets', { recursive: true });
@@ -13,10 +14,27 @@ await cp('assets', 'dist/assets', { recursive: true });
 const version = async file => createHash('sha256').update(await readFile(file)).digest('hex').slice(0, 12);
 const cssVersion = await version('styles.css');
 const jsVersion = await version('script.js');
+const counterVersion = await version('download-counter.js');
+// Refresh the API-offline fallback on every deploy. Never replace it with zero
+// or a placeholder when GitHub is unavailable to the build environment.
+let downloadSnapshot;
+try {
+  downloadSnapshot = await fetchDownloadTotal({ timeoutMs: 5000 });
+} catch {
+  console.log('Using the committed verified APK download snapshot.');
+}
 for (const page of ['index.html', 'privacy.html']) {
   const source = await readFile(`dist/${page}`, 'utf8');
-  const html = source.replace('href="styles.css"', `href="styles.css?v=${cssVersion}"`)
-    .replace('src="script.js"', `src="script.js?v=${jsVersion}"`);
+  let html = source.replace('href="styles.css"', `href="styles.css?v=${cssVersion}"`)
+    .replace('src="script.js"', `src="script.js?v=${jsVersion}"`)
+    .replace('src="download-counter.js"', `src="download-counter.js?v=${counterVersion}"`);
+  if (page === 'index.html' && downloadSnapshot) {
+    html = html.replace(/data-total="\d+" data-verified-at="[^"]+"/,
+      `data-total="${downloadSnapshot.total}" data-verified-at="${downloadSnapshot.verifiedAt}"`)
+      .replace(/(id="download-count" aria-hidden="true">)\d+/, `$1${downloadSnapshot.total}`)
+      .replace(/(id="download-count-announcement"[^>]*>)[^<]+/,
+        `$1${downloadSnapshot.total} APK release-asset downloads. Last verified ${downloadSnapshot.verifiedAt}.`);
+  }
   await writeFile(`dist/${page}`, html);
 }
 

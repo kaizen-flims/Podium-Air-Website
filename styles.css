@@ -19,6 +19,56 @@
 @media (max-width:390px){.hero h1{font-size:54px}.hero-art{min-height:425px;height:425px}.hero-icon-card{width:160px}.hero-phone{width:190px;right:7%}.section-intro{letter-spacing:.1em}.attempt-success{gap:10px}.attempt-success small{font-size:8px}.attempt-success strong{font-size:55px}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.intro{animation:intro-away .2s .2s both}.intro-icon{animation:none;opacity:1;transform:none}.intro-wordmark{animation:none;clip-path:none}.intro-rule,.intro-orbit,.intro-index{display:none}.hero-icon-card,.ticker-track{animation:none}.button,.showcase-phone,.attempt-grid>span{transition:none}}
 
+/* Compact counter occupies the space between the header and hero eyebrow. */
+.download-counter-wrap { padding-top: 18px; }
+.download-counter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 480px);
+  min-height: 54px;
+  padding: 8px 18px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: #e9e3e3;
+  position: relative;
+}
+.download-counter-label, .download-counter-proof {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: .09em;
+}
+.download-counter-proof { text-align: right; }
+.download-counter-proof:hover { color: #fff; text-decoration: underline; }
+.download-counter-proof:focus-visible { outline-color: #fff; outline-offset: 3px; }
+.download-counter-value {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  height: 1em;
+  color: var(--red);
+  font-size: var(--counter-size, 36px);
+  line-height: 1;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.04em;
+}
+.download-counter-digit { display: block; flex: 0 0 .6em; width: .6em; height: 1em; overflow: hidden; text-align: center; }
+.download-counter-track { display: block; }
+.download-counter-track > span { display: block; height: 1em; line-height: 1; }
+.download-counter.is-spinning .download-counter-track { will-change: transform; }
+.download-counter-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.download-counter-wrap + .hero .hero-copy { padding-top: 40px; }
+@media (max-width: 760px) {
+  .download-counter-wrap { padding-top: 12px; }
+  .download-counter { width: 100%; min-height: 48px; padding: 8px 12px; gap: 8px; }
+  .download-counter-label, .download-counter-proof { font-size: 8px; letter-spacing: .055em; }
+  .download-counter-value { font-size: var(--counter-size, 32px); }
+  .download-counter-wrap + .hero .hero-copy { padding-top: 14px; }
+}
+
 /* One-time scroll reveals. Only opacity and transform animate on the compositor. */
 @media (prefers-reduced-motion: no-preference) {
   .motion-ready .scroll-reveal {
@@ -60,4 +110,3 @@
     transition: none !important;
   }
 }
-

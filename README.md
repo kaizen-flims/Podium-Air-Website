@@ -16,6 +16,14 @@ The workflow supplies `SITE_URL` so the sitemap includes the repository path. If
 
 The page starts with a verified signed v1.0.1 APK URL and then checks GitHub's public latest-release endpoint. It accepts only non-draft, non-prerelease semver tags with a matching `Podium-Air-vX.Y.Z.apk` asset in the app repository. On errors or rate limits, the verified fallback stays in place. Update the fallback in `index.html` and `script.js` after a future stable release if you want API-offline visitors to get the newest version too.
 
+## APK download counter
+
+The compact counter below the header sums uploaded Podium Air APK assets across all public releases, including paginated results and future version or architecture names. It counts release-asset downloads, not unique users. The GitHub link opens the public releases as the source of the count.
+
+On each load, vertical digit reels decelerate and settle in two seconds after the existing logo intro. Reduced-motion visitors get the number without rolling digits. The counter runs in an independent module so a failed request cannot interrupt tabs, release links, or scroll reveals.
+
+Every build refreshes the verified HTML fallback from GitHub when available. The browser also retains its last verified count locally. API failures and rate limits show the newest available snapshot with a small “LAST VERIFIED” label and a verification timestamp in the tooltip; they never show dashes or an invented live count. The build versions the counter module, existing app script, and stylesheet by content hash.
+
 ## Assets and source
 
 The app icon comes from the Podium Air application repository. The app screenshots were provided by Prem and show the actual app, including visible account and update dialogs. They are not fabricated product screens. The site has no runtime dependency or third-party font. App source and its GPLv3/upstream notices live in the [Android repository](https://github.com/kaizen-flims/Podium-Air).
