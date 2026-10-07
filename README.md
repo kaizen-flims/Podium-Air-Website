@@ -20,7 +20,9 @@ The page starts with a verified signed v1.0.1 APK URL and then checks GitHub's p
 
 The compact counter below the header sums uploaded Podium Air APK assets across all public releases, including paginated results and future version or architecture names. It counts release-asset downloads, not unique users. The GitHub link opens the public releases as the source of the count.
 
-On each load, vertical digit reels decelerate and settle in two seconds after the existing logo intro. Reduced-motion visitors get the number without rolling digits. The counter runs in an independent module so a failed request cannot interrupt tabs, release links, or scroll reveals.
+Cloudflare Pages serves `/api/downloads` through `functions/api/downloads.js`, sharing verified GitHub results for up to two minutes and retaining a last verified snapshot for API failures. `_routes.json` limits function invocations to that endpoint, keeping the rest of the website static. GitHub Pages falls back to the public GitHub API directly. No token or secret is needed.
+
+On each load, vertical digit reels decelerate and settle in two seconds after the existing logo intro. Slow API requests never delay the animation: the counter starts from verified data, locks onto a live result if it arrives during the roll, and updates statically if the result arrives later. Reduced-motion visitors get the number without rolling digits. The counter runs in an independent module so a failed request cannot interrupt tabs, release links, or scroll reveals.
 
 Every build refreshes the verified HTML fallback from GitHub when available. The browser also retains its last verified count locally. API failures and rate limits show the newest available snapshot with a small “LAST VERIFIED” label and a verification timestamp in the tooltip; they never show dashes or an invented live count. The build versions the counter module, existing app script, and stylesheet by content hash.
 

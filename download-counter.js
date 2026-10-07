@@ -30,14 +30,14 @@ export function sumApkDownloads(releases) {
   return total;
 }
 
-export async function fetchDownloadTotal({ timeoutMs = 2500 } = {}) {
+export async function fetchDownloadTotal({ timeoutMs = 6000, headers = {} } = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const releases = [];
   try {
     for (let page = 1; ; page++) {
       const response = await fetch(`${RELEASES_URL}?per_page=100&page=${page}`, {
-        headers: { Accept: 'application/vnd.github+json' },
+        headers: { ...headers, Accept: 'application/vnd.github+json' },
         signal: controller.signal,
         cache: 'no-store'
       });
@@ -59,6 +59,24 @@ export function validSnapshot(snapshot) {
     Number.isFinite(time) && time <= Date.now() + 60000;
 }
 
+async function loadLiveTotal() {
+  // Cloudflare serves a short-lived edge cache. GitHub Pages and local previews
+  // can still use the public GitHub API without a server or credentials.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch('api/downloads', { signal: controller.signal, cache: 'no-store' });
+    if (!response.ok) throw new Error('Same-site counter unavailable');
+    const record = await response.json();
+    if (!validSnapshot(record) || typeof record.live !== 'boolean') throw new Error('Invalid counter snapshot');
+    return { record, live: record.live };
+  } catch {
+    return { record: await fetchDownloadTotal(), live: true };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function initializeCounter() {
   const counter = document.getElementById('download-counter');
   if (!counter) return;
@@ -73,6 +91,8 @@ function initializeCounter() {
     const cached = JSON.parse(localStorage.getItem(cacheKey));
     if (validSnapshot(cached) && Date.parse(cached.verifiedAt) > Date.parse(snapshot.verifiedAt)) snapshot = cached;
   } catch { /* Storage may be disabled; the build snapshot is always available. */ }
+  let latest = { record: snapshot, live: false };
+  let settled = false;
 
   function staticDigits(total) {
     const digits = String(total);
@@ -96,8 +116,10 @@ function initializeCounter() {
     announcement.textContent = `${record.total} APK release-asset downloads. ${live ? 'Live from GitHub.' : `Last verified ${checked}.`}`;
   }
 
-  async function spin(record, live) {
+  async function spin() {
+    const { record, live } = latest;
     if (reduced || typeof value.animate !== 'function') {
+      settled = true;
       staticDigits(record.total);
       describe(record, live);
       return;
@@ -134,26 +156,35 @@ function initializeCounter() {
         easing: 'cubic-bezier(.12,.65,.18,1)', fill: 'forwards'
       }).finished.catch(() => {})));
     } finally {
-      staticDigits(record.total);
+      settled = true;
+      staticDigits(latest.record.total);
       counter.classList.remove('is-spinning');
-      describe(record, live);
+      describe(latest.record, latest.live);
     }
   }
 
   staticDigits(snapshot.total);
   describe(snapshot, false);
-  const liveResult = fetchDownloadTotal().then(record => {
-    try { localStorage.setItem(cacheKey, JSON.stringify(record)); } catch { /* Optional cache. */ }
-    return { record, live: true };
-  }).catch(() => ({ record: snapshot, live: false }));
+  loadLiveTotal().then(result => {
+    // Do not replace a newer local snapshot with an older server fallback.
+    if (!result.live && Date.parse(result.record.verifiedAt) < Date.parse(latest.record.verifiedAt)) return;
+    latest = result;
+    try { localStorage.setItem(cacheKey, JSON.stringify(result.record)); } catch { /* Optional cache. */ }
+    if (reduced || settled) {
+      staticDigits(result.record.total);
+      describe(result.record, result.live);
+    }
+  }).catch(() => {});
 
   // Preserve the site's existing logo intro, then make the full two-second roll visible.
   // Reduced-motion visitors see verified data promptly and never wait for an animation.
   const introAnimation = !reduced && document.querySelector('.intro')?.getAnimations?.()
     .find(animation => animation.animationName === 'intro-away');
   const introDone = introAnimation ? introAnimation.finished.catch(() => {}) : Promise.resolve();
-  Promise.all([liveResult, introDone])
-    .then(([{ record, live }]) => spin(record, live))
+  // Start on time even on a slow/offline connection. A response received while
+  // rolling is used at the final lock; a later response updates the static total.
+  Promise.resolve(introDone)
+    .then(() => spin())
     .catch(() => { staticDigits(snapshot.total); describe(snapshot, false); });
 }
 

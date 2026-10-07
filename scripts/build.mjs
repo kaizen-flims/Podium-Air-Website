@@ -4,7 +4,7 @@ import { fetchDownloadTotal } from '../download-counter.js';
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['index.html', 'privacy.html', 'styles.css', 'script.js', 'download-counter.js', 'robots.txt', '_headers']) {
+for (const file of ['index.html', 'privacy.html', 'styles.css', 'script.js', 'download-counter.js', 'robots.txt', '_headers', '_routes.json']) {
   await cp(file, `dist/${file}`);
 }
 await cp('assets', 'dist/assets', { recursive: true });
@@ -22,7 +22,11 @@ try {
   downloadSnapshot = await fetchDownloadTotal({ timeoutMs: 5000 });
 } catch {
   console.log('Using the committed verified APK download snapshot.');
+  const source = await readFile('index.html', 'utf8');
+  const [, total, verifiedAt] = source.match(/data-total="(\d+)" data-verified-at="([^"]+)"/);
+  downloadSnapshot = { total: Number(total), verifiedAt };
 }
+await writeFile('dist/download-count.json', JSON.stringify(downloadSnapshot));
 for (const page of ['index.html', 'privacy.html']) {
   const source = await readFile(`dist/${page}`, 'utf8');
   let html = source.replace('href="styles.css"', `href="styles.css?v=${cssVersion}"`)
