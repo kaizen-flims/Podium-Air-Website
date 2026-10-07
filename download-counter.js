@@ -38,10 +38,9 @@ export async function fetchDownloadTotal({ timeoutMs = 6000, headers = {} } = {}
     for (let page = 1; ; page++) {
       const response = await fetch(`${RELEASES_URL}?per_page=100&page=${page}`, {
         headers: { ...headers, Accept: 'application/vnd.github+json' },
-        signal: controller.signal,
-        cache: 'no-store'
+        signal: controller.signal
       });
-      if (!response.ok) throw new Error('GitHub release data unavailable');
+      if (!response.ok) throw new Error(`GitHub release data unavailable (${response.status})`);
       const batch = await response.json();
       if (!Array.isArray(batch)) throw new Error('Invalid release response');
       releases.push(...batch);

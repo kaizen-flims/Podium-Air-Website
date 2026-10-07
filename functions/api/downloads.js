@@ -1,9 +1,9 @@
 import { fetchDownloadTotal, validSnapshot } from '../../download-counter.js';
 
-function json(record, cacheControl = 'no-store', status = 200) {
+function json(record, cacheControl = 'no-store', status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(record), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': cacheControl }
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': cacheControl, ...extraHeaders }
   });
 }
 
@@ -27,18 +27,21 @@ export async function onRequestGet(context) {
       cache.put(lastKey, json(record, 'public, max-age=86400'))
     ]).catch(() => {}));
     return json({ ...record, live: true });
-  } catch {
+  } catch (error) {
+    // Safe upstream diagnostics help distinguish rate limits from timeouts
+    // without exposing credentials or displaying an error to visitors.
+    const diagnostics = { 'X-Download-Upstream': String(error?.message || 'Unavailable').replace(/[^\x20-\x7e]/g, ' ').slice(0, 160) };
     try {
       const cached = await cache.match(lastKey);
       if (cached) {
         const record = await cached.json();
-        if (validSnapshot(record)) return json({ ...record, live: false });
+        if (validSnapshot(record)) return json({ ...record, live: false }, 'no-store', 200, diagnostics);
       }
     } catch { /* Try the verified snapshot produced by the static build. */ }
     try {
       const response = await context.env.ASSETS.fetch(new Request(new URL('/download-count.json', context.request.url)));
       const record = await response.json();
-      if (response.ok && validSnapshot(record)) return json({ ...record, live: false });
+      if (response.ok && validSnapshot(record)) return json({ ...record, live: false }, 'no-store', 200, diagnostics);
     } catch { /* The browser still has its verified HTML/local fallback. */ }
     return json({ error: 'Verified snapshot unavailable' }, 'no-store', 503);
   }
