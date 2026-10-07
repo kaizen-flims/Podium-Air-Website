@@ -16,7 +16,7 @@ export async function onRequestGet(context) {
     const cached = await cache.match(freshKey);
     if (cached) {
       const record = await cached.json();
-      if (validSnapshot(record)) return json({ ...record, live: true });
+      if (validSnapshot(record)) return json({ ...record, live: record.live !== false });
     }
   } catch { /* Cache failure must not prevent a fresh GitHub request. */ }
 
@@ -31,17 +31,23 @@ export async function onRequestGet(context) {
     // Safe upstream diagnostics help distinguish rate limits from timeouts
     // without exposing credentials or displaying an error to visitors.
     const diagnostics = { 'X-Download-Upstream': String(error?.message || 'Unavailable').replace(/[^\x20-\x7e]/g, ' ').slice(0, 160) };
+    const fallback = record => {
+      // Back off during upstream failures instead of retrying GitHub for every visitor.
+      const saved = { ...record, live: false };
+      context.waitUntil(cache.put(freshKey, json(saved, 'public, max-age=30')).catch(() => {}));
+      return json(saved, 'no-store', 200, diagnostics);
+    };
     try {
       const cached = await cache.match(lastKey);
       if (cached) {
         const record = await cached.json();
-        if (validSnapshot(record)) return json({ ...record, live: false }, 'no-store', 200, diagnostics);
+        if (validSnapshot(record)) return fallback(record);
       }
     } catch { /* Try the verified snapshot produced by the static build. */ }
     try {
       const response = await context.env.ASSETS.fetch(new Request(new URL('/download-count.json', context.request.url)));
       const record = await response.json();
-      if (response.ok && validSnapshot(record)) return json({ ...record, live: false }, 'no-store', 200, diagnostics);
+      if (response.ok && validSnapshot(record)) return fallback(record);
     } catch { /* The browser still has its verified HTML/local fallback. */ }
     return json({ error: 'Verified snapshot unavailable' }, 'no-store', 503);
   }

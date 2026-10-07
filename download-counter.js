@@ -40,7 +40,11 @@ export async function fetchDownloadTotal({ timeoutMs = 6000, headers = {} } = {}
         headers: { ...headers, Accept: 'application/vnd.github+json' },
         signal: controller.signal
       });
-      if (!response.ok) throw new Error(`GitHub release data unavailable (${response.status})`);
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        const reason = /rate limit/i.test(body.message || '') ? 'rate limited' : 'release data unavailable';
+        throw new Error(`GitHub ${reason} (${response.status})`);
+      }
       const batch = await response.json();
       if (!Array.isArray(batch)) throw new Error('Invalid release response');
       releases.push(...batch);
