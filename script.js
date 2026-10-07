@@ -34,6 +34,45 @@
     if (asset) applyRelease({ version: data.tag_name, url: asset.browser_download_url });
   }).catch(() => {}).finally(() => clearTimeout(timeout));
 
+  function animateDownloadCount(target) {
+    const el = document.getElementById('download-count');
+    if (!el) return;
+    if (reduced || !Number.isFinite(target)) { el.textContent = target.toLocaleString(); return; }
+    const start = performance.now();
+    const duration = 900;
+    const from = Math.max(0, target - Math.min(target, 80));
+    const tick = now => {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(from + (target - from) * eased).toLocaleString();
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  async function loadDownloadCount() {
+    const note = document.getElementById('download-proof-note');
+    try {
+      const response = await fetch('https://api.github.com/repos/kaizen-flims/Podium-Air/releases', {
+        headers: { Accept: 'application/vnd.github+json' }
+      });
+      if (!response.ok) throw new Error('Download count unavailable');
+      const releases = await response.json();
+      const total = releases
+        .filter(release => !release.draft)
+        .flatMap(release => release.assets || [])
+        .filter(asset => /^Podium-Air-v\d+\.\d+\.\d+\.apk$/.test(asset.name))
+        .reduce((sum, asset) => sum + (Number(asset.download_count) || 0), 0);
+      if (!total) throw new Error('No APK assets found');
+      animateDownloadCount(total);
+      if (note) note.textContent = 'Live total from public GitHub release assets.';
+    } catch {
+      if (note) note.textContent = 'Last verified total shown. Verify the latest count on GitHub.';
+    }
+  }
+
+  loadDownloadCount();
+
   const screens = {
     home: {
       src: 'assets/update-screen.jpg',
