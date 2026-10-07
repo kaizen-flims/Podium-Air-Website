@@ -20,7 +20,6 @@
   <link rel="apple-touch-icon" href="assets/podium-air-icon.webp">
   <link rel="preload" href="assets/podium-air-icon.webp" as="image" fetchpriority="high">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="downloads.css">
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -51,6 +50,11 @@
 
   <main id="main">
     <section class="hero section-pad" aria-labelledby="hero-title">
+      <div class="hero-download-meter" aria-label="Live Podium Air APK download count">
+        <span class="hero-download-label">LIVE DOWNLOADS</span>
+        <strong id="download-count" aria-live="polite">000</strong>
+        <span class="hero-download-source">GITHUB VERIFIED</span>
+      </div>
       <div class="hero-copy">
         <p class="eyebrow"><span class="red-dot"></span> THE OFFICIAL PODIUM AIR EXPERIENCE</p>
         <h1 id="hero-title">Music goes<br><em>with you.</em></h1>
@@ -136,22 +140,6 @@
     </section>
 
     <section class="ecosystem section-pad" aria-labelledby="ecosystem-title"><div class="section-intro"><span class="number">05 / ONE JOURNEY</span><span class="rule"></span><span>TWO WAYS TO LISTEN</span></div><h2 id="ecosystem-title">It started with<br><em>Podium.</em></h2><div class="ecosystem-grid"><div class="eco-item"><span>THE ORIGINAL</span><h3>Podium<span class="eco-period">.</span></h3><p>For the songs already yours. A local, offline music player with its own identity.</p></div><div class="eco-item air"><span>THE NEXT CHAPTER</span><h3>Podium Air<span class="eco-period">.</span></h3><p>For the music out there waiting to be heard. Stream, discover, and download.</p></div></div></section>
-
-    <section class="download-proof section-pad" aria-labelledby="download-proof-title">
-      <div class="section-intro"><span class="number">06 / LIVE FROM GITHUB</span><span class="rule"></span><span>PUBLICLY VERIFIABLE</span></div>
-      <div class="download-proof-grid">
-        <div>
-          <p class="download-proof-kicker">PODIUM AIR APK DOWNLOADS</p>
-          <p class="download-count" id="download-count" aria-live="polite">109</p>
-          <p class="download-proof-note" id="download-proof-note">Loading the latest public GitHub count…</p>
-        </div>
-        <div class="download-proof-copy">
-          <h2 id="download-proof-title">Numbers with<br><em>receipts.</em></h2>
-          <p>Every number here comes from Podium Air’s public GitHub release assets. No hand-edited counter. No mystery analytics.</p>
-          <a class="download-proof-link" href="https://github.com/kaizen-flims/Podium-Air/releases" target="_blank" rel="noopener noreferrer">Verify on GitHub <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-    </section>
 
     <section class="final-cta section-pad" id="download" aria-labelledby="download-title"><span class="cta-orbit" aria-hidden="true"></span><img src="assets/podium-air-icon.webp" alt="Podium Air app icon" width="104" height="104" loading="lazy"><p class="eyebrow">READY WHEN YOU ARE</p><h2 id="download-title">Take your music<br><em>with you.</em></h2><a class="button button-white download-link" href="https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk" download>Download Podium Air <span aria-hidden="true">↗</span></a><p class="cta-version">Android 8.0+ <span aria-hidden="true">·</span> Latest stable <span class="version-text">v1.0.1</span></p><p class="install-note">Your Android browser may ask you to allow installation from this source.</p></section>
   </main>
