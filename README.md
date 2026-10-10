@@ -1,6 +1,6 @@
 # Podium Air Website
 
-The official consumer website for [Podium Air](https://github.com/kaizen-flims/Podium-Air). It is a small, dependency-free static site deployed through GitHub Pages.
+The official consumer website for [Podium Air](https://github.com/kaizen-flims/Podium-Air). It is a small, dependency-free static site deployed at https://podium-air-website.pages.dev through the connected Cloudflare Pages project; a GitHub Pages workflow is also included.
 
 ## Local preview
 
@@ -14,7 +14,9 @@ The workflow supplies `SITE_URL` so the sitemap includes the repository path. If
 
 ## Releases
 
-The page starts with a verified signed v1.0.1 APK URL and then checks GitHub's public latest-release endpoint. It accepts only non-draft, non-prerelease semver tags with a matching `Podium-Air-vX.Y.Z.apk` asset in the app repository. On errors or rate limits, the verified fallback stays in place. Update the fallback in `index.html` and `script.js` after a future stable release if you want API-offline visitors to get the newest version too.
+The Android buttons start with a verified signed v1.0.1 APK URL and then checks GitHub's public latest-release endpoint. It accepts only non-draft, non-prerelease semver tags with a matching `Podium-Air-vX.Y.Z.apk` asset in the app repository. On errors or rate limits, the verified fallback stays in place. Update the fallback in `index.html` and `script.js` after a future stable release if you want API-offline visitors to get the newest version too.
+
+The hero and download section also offer a Windows x64 MSI, linked directly to the explicitly published `v0.2.0-preview.1` release asset in `kaizen-flims/Podium-Air-Windows-`. It is labelled as an unsigned local-music preview. Android release discovery updates only anchors marked `data-platform="android"`; it cannot replace Windows links. Both platforms have inline SVG logos, responsive controls and separate compatibility/version notes. Windows source and preview notes are linked alongside the download.
 
 ## APK download counter
 
@@ -29,3 +31,5 @@ Every build refreshes the verified HTML fallback from GitHub when available. The
 ## Assets and source
 
 The app icon comes from the Podium Air application repository. The app screenshots were provided by Prem and show the actual app, including visible account and update dialogs. They are not fabricated product screens. The site has no runtime dependency or third-party font. App source and its GPLv3/upstream notices live in the [Android repository](https://github.com/kaizen-flims/Podium-Air).
+
+The independent platform-download verification workflow checks both platforms in Chromium at 1440/768/390/320 px, checks their labels/logos/links and confirms that a future Android API result cannot replace the Windows installer link. It also verifies the live Cloudflare HTML after deployment. Screenshots and live evidence are uploaded as `Platform-download-verification`. Playwright 1.62.1 is installed only for CI verification; the public site remains dependency-free.

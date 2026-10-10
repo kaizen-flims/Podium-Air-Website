@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fffaf9">
-  <meta name="description" content="Meet Podium Air: music for wherever you go. Stream, download, and keep listening in the background on Android. Made with love by Prem.">
+  <meta name="description" content="Meet Podium Air: music for wherever you go. Stream, download, and keep listening in the background on Android. Windows local-music preview available. Made with love by Prem.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Podium Air — Music goes with you">
   <meta property="og:description" content="Stream it. Save it. Take it with you. Meet Podium Air for Android, made with love by Prem.">
@@ -24,6 +24,18 @@
   <script src="download-counter.js" type="module"></script>
 </head>
 <body>
+  <svg class="platform-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="platform-android" viewBox="0 0 24 24">
+        <path d="M7.5 5.2 5.8 2.4M16.5 5.2l1.7-2.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path fill="currentColor" fill-rule="evenodd" d="M5.5 10a6.5 6.5 0 0 1 13 0h-13Zm3-2.8a.8.8 0 1 0 1.6 0 .8.8 0 0 0-1.6 0Zm5.4 0a.8.8 0 1 0 1.6 0 .8.8 0 0 0-1.6 0Z"/>
+        <rect x="5.5" y="11" width="13" height="8" rx="1.3" fill="currentColor"/>
+        <path d="M3 11.5v6M21 11.5v6M9 18.5v3M15 18.5v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="platform-windows" viewBox="0 0 24 24"><path fill="currentColor" d="M2 2h9v9H2zm11 0h9v9h-9zM2 13h9v9H2zm11 0h9v9h-9z"/></symbol>
+    </defs>
+  </svg>
+
   <a class="skip-link" href="#main">Skip to content</a>
 
   <div class="intro" aria-hidden="true">
@@ -45,7 +57,7 @@
     <nav aria-label="Main navigation">
       <a href="#experience">Experience</a>
       <a href="#journey">The journey</a>
-      <a href="#download" class="nav-download">Download <span aria-hidden="true">↗</span></a>
+      <a href="#download" class="nav-download">Downloads <span aria-hidden="true">↗</span></a>
     </nav>
   </header>
 
@@ -63,9 +75,15 @@
         <p class="eyebrow"><span class="red-dot"></span> THE OFFICIAL PODIUM AIR EXPERIENCE</p>
         <h1 id="hero-title">Music goes<br><em>with you.</em></h1>
         <p class="hero-lead">Find your sound. Let it play anywhere. Podium Air brings online music, downloads and your local library together on Android.</p>
-        <div class="hero-actions">
-          <a class="button button-red download-link" href="https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk" download>Download Podium Air <span aria-hidden="true">↗</span></a>
-          <span class="version-note">For Android 8.0+ <span aria-hidden="true">·</span> <span class="version-text">v1.0.1</span></span>
+        <div class="hero-actions platform-downloads">
+          <div class="download-option">
+            <a class="button button-red download-link" data-platform="android" href="https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk" aria-label="Download Podium Air for Android" download><svg class="platform-logo" aria-hidden="true" focusable="false"><use href="#platform-android"/></svg><span class="download-label">Download Podium Air for Android</span><span aria-hidden="true">↗</span></a>
+            <span class="version-note">Android 8.0+ <span aria-hidden="true">·</span> Stable <span class="version-text">v1.0.1</span></span>
+          </div>
+          <div class="download-option">
+            <a class="button button-outline download-link" data-platform="windows" href="https://github.com/kaizen-flims/Podium-Air-Windows-/releases/download/v0.2.0-preview.1/Podium-Air-Windows-0.2.0-x64.msi" aria-label="Download Podium Air for Windows" download><svg class="platform-logo" aria-hidden="true" focusable="false"><use href="#platform-windows"/></svg><span class="download-label">Download Podium Air for Windows</span><span aria-hidden="true">↗</span></a>
+            <span class="version-note">Windows 10/11 x64 <span aria-hidden="true">·</span> Local music preview</span>
+          </div>
         </div>
         <div class="hero-scroll" aria-hidden="true"><span></span> SCROLL TO EXPLORE</div>
       </div>
@@ -140,14 +158,31 @@
         </div>
       </div>
       <div class="pivot section-pad"><p class="story-kicker">THE NEXT CHAPTER</p><h3>Podium dropped.<br>Prem wanted <em>more.</em></h3><p>Podium made room for the music already on your phone. But Prem wanted Podium users to listen online too.</p><div class="name-transition"><span>PODIUM</span><span aria-hidden="true">→</span><strong>PODIUM AIR</strong></div></div>
-      <div class="weeks section-pad"><span class="story-kicker">THREE WEEKS IN THE MAKING</span><div class="weeks-track"><span>WEEK 01</span><span>WEEK 02</span><span>WEEK 03</span></div><h3>Three weeks later.<br><em>Podium Air.</em></h3><p>Prem coded it. Then Podium Air dropped.</p><a class="text-link download-link" href="https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk" download>Download the app <span aria-hidden="true">↗</span></a></div>
+      <div class="weeks section-pad"><span class="story-kicker">THREE WEEKS IN THE MAKING</span><div class="weeks-track"><span>WEEK 01</span><span>WEEK 02</span><span>WEEK 03</span></div><h3>Three weeks later.<br><em>Podium Air.</em></h3><p>Prem coded it. Then Podium Air dropped.</p><a class="text-link download-link" data-platform="android" href="https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk" download><svg class="platform-logo" aria-hidden="true" focusable="false"><use href="#platform-android"/></svg><span class="download-label">Download Podium Air for Android</span><span aria-hidden="true">↗</span></a></div>
     </section>
 
     <section class="ecosystem section-pad" aria-labelledby="ecosystem-title"><div class="section-intro"><span class="number">05 / ONE JOURNEY</span><span class="rule"></span><span>TWO WAYS TO LISTEN</span></div><h2 id="ecosystem-title">It started with<br><em>Podium.</em></h2><div class="ecosystem-grid"><div class="eco-item"><span>THE ORIGINAL</span><h3>Podium<span class="eco-period">.</span></h3><p>For the songs already yours. A local, offline music player with its own identity.</p></div><div class="eco-item air"><span>THE NEXT CHAPTER</span><h3>Podium Air<span class="eco-period">.</span></h3><p>For the music out there waiting to be heard. Stream, discover, and download.</p></div></div></section>
 
-    <section class="final-cta section-pad" id="download" aria-labelledby="download-title"><span class="cta-orbit" aria-hidden="true"></span><img src="assets/podium-air-icon.webp" alt="Podium Air app icon" width="104" height="104" loading="lazy"><p class="eyebrow">READY WHEN YOU ARE</p><h2 id="download-title">Take your music<br><em>with you.</em></h2><a class="button button-white download-link" href="https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk" download>Download Podium Air <span aria-hidden="true">↗</span></a><p class="cta-version">Android 8.0+ <span aria-hidden="true">·</span> Latest stable <span class="version-text">v1.0.1</span></p><p class="install-note">Your Android browser may ask you to allow installation from this source.</p></section>
+    <section class="final-cta section-pad" id="download" aria-labelledby="download-title">
+      <span class="cta-orbit" aria-hidden="true"></span>
+      <img src="assets/podium-air-icon.webp" alt="Podium Air app icon" width="104" height="104" loading="lazy">
+      <p class="eyebrow">READY WHEN YOU ARE</p>
+      <h2 id="download-title">Take your music<br><em>with you.</em></h2>
+      <div class="platform-downloads">
+        <div class="download-option">
+          <a class="button button-white download-link" data-platform="android" href="https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk" aria-label="Download Podium Air for Android" download><svg class="platform-logo" aria-hidden="true" focusable="false"><use href="#platform-android"/></svg><span class="download-label">Download Podium Air for Android</span><span aria-hidden="true">↗</span></a>
+          <p class="cta-version">Android 8.0+ <span aria-hidden="true">·</span> Latest stable <span class="version-text">v1.0.1</span></p>
+          <p class="install-note">Your Android browser may ask you to allow installation from this source.</p>
+        </div>
+        <div class="download-option">
+          <a class="button button-white download-link" data-platform="windows" href="https://github.com/kaizen-flims/Podium-Air-Windows-/releases/download/v0.2.0-preview.1/Podium-Air-Windows-0.2.0-x64.msi" aria-label="Download Podium Air for Windows" download><svg class="platform-logo" aria-hidden="true" focusable="false"><use href="#platform-windows"/></svg><span class="download-label">Download Podium Air for Windows</span><span aria-hidden="true">↗</span></a>
+          <p class="cta-version">Windows 10/11 x64 <span aria-hidden="true">·</span> Preview 0.2.0</p>
+          <p class="install-note">Local music preview. Unsigned installer. <a href="https://github.com/kaizen-flims/Podium-Air-Windows-/releases/tag/v0.2.0-preview.1">Windows release notes ↗</a></p>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer class="footer section-pad"><div class="footer-top"><a href="#top" class="footer-brand">PODIUM <em>AIR</em><span>↗</span></a><p>Made with love by Prem.</p></div><div class="footer-bottom"><span>© <span id="year">2026</span> Podium Air</span><div><a href="https://github.com/kaizen-flims/Podium-Air" target="_blank" rel="noopener noreferrer">Source &amp; credits</a><a href="https://github.com/kaizen-flims/Podium-Air/releases" target="_blank" rel="noopener noreferrer">Changelog</a><a href="privacy.html">Privacy</a></div></div></footer>
+  <footer class="footer section-pad"><div class="footer-top"><a href="#top" class="footer-brand">PODIUM <em>AIR</em><span>↗</span></a><p>Made with love by Prem.</p></div><div class="footer-bottom"><span>© <span id="year">2026</span> Podium Air</span><div><a href="https://github.com/kaizen-flims/Podium-Air" target="_blank" rel="noopener noreferrer">Android source &amp; credits</a><a href="https://github.com/kaizen-flims/Podium-Air-Windows-" target="_blank" rel="noopener noreferrer">Windows source &amp; credits</a><a href="https://github.com/kaizen-flims/Podium-Air/releases" target="_blank" rel="noopener noreferrer">Changelog</a><a href="privacy.html">Privacy</a></div></div></footer>
 </body>
 </html>

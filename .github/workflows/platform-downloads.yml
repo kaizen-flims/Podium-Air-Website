@@ -1,0 +1,42 @@
+name: Verify platform downloads
+on:
+  push:
+    branches: [main]
+    paths: [index.html, styles.css, script.js, scripts/check-downloads.mjs, .github/workflows/platform-downloads.yml]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: platform-downloads-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check scripts and build static site
+        env:
+          SITE_URL: https://podium-air-website.pages.dev
+        run: npm run check && npm run build
+      - name: Install pinned browser verification tools
+        run: |
+          npm install --no-save --package-lock=false playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - name: Verify platform downloads and responsive layouts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p download-verification
+          node scripts/check-downloads.mjs | tee download-verification/result.txt
+      - name: Verify published Cloudflare platform buttons
+        if: github.event_name == 'push'
+        run: node scripts/check-live-downloads.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Platform-download-verification
+          path: download-verification/

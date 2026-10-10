@@ -7,7 +7,7 @@
   };
 
   function applyRelease(release) {
-    document.querySelectorAll('.download-link').forEach(link => {
+    document.querySelectorAll('.download-link[data-platform="android"]').forEach(link => {
       link.href = release.url;
       link.setAttribute('aria-label', `Download Podium Air ${release.version} APK for Android`);
     });
@@ -105,7 +105,7 @@
       ['.pivot', '.story-kicker, h3, p:not(.story-kicker), .name-transition'],
       ['.weeks', '.story-kicker, .weeks-track, h3, p, .text-link'],
       ['.ecosystem', '.section-intro, h2, .eco-item'],
-      ['.final-cta', ':scope > img, :scope > .eyebrow, :scope > h2, :scope > .button, :scope > .cta-version']
+      ['.final-cta', ':scope > img, :scope > .eyebrow, :scope > h2, .download-option']
     ];
     const revealObserver = new IntersectionObserver(entries => {
       for (const entry of entries) {

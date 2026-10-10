@@ -110,3 +110,25 @@
     transition: none !important;
   }
 }
+
+/* Platform downloads share one layout and keep their identities at narrow widths. */
+.platform-symbols { position: absolute; width: 0; height: 0; overflow: hidden; }
+.platform-logo { width: 22px; height: 22px; flex: 0 0 22px; }
+.download-label { flex: 1; min-width: 0; }
+.platform-downloads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; width: min(100%, 780px); position: relative; z-index: 1; }
+.download-option { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.platform-downloads .button { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-width: 0; padding: 16px 18px; font-size: 13px; text-align: center; }
+.button-outline { border: 1px solid var(--ink); color: var(--ink); background: transparent; }
+.button-outline:hover { background: var(--ink); color: #fff; }
+.hero-actions.platform-downloads { grid-template-columns: minmax(0, 1fr); max-width: 410px; gap: 16px; }
+.hero-actions .download-option { align-items: flex-start; }
+.hero-actions .version-note { margin-top: 8px; font-size: 11px; line-height: 1.5; }
+.text-link.download-link { align-items: center; gap: 10px; max-width: 100%; }
+.final-cta .install-note { line-height: 1.5; }
+.final-cta .install-note a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) {
+  .platform-downloads { grid-template-columns: minmax(0, 1fr); max-width: 410px; gap: 24px; }
+  .platform-downloads .button { padding: 15px 12px; font-size: 12px; }
+  .hero-actions.platform-downloads { width: 100%; gap: 16px; }
+  .text-link.download-link { font-size: 13px; }
+}
