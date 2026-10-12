@@ -55,12 +55,10 @@
   const screen = document.getElementById('screen-image');
   const panel = document.getElementById('screen-panel');
   const caption = document.getElementById('screen-caption');
-
+  const screenIndex = document.getElementById('screen-index');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  let swapTimer;
   function selectTab(tab, focus = false) {
-    clearTimeout(swapTimer);
     const next = screens[tab.dataset.screen];
     tabs.forEach(item => {
       const active = item === tab;
@@ -73,13 +71,13 @@
       screen.src = next.src;
       screen.alt = next.alt;
       caption.textContent = next.caption;
-
+      screenIndex.textContent = next.index;
       screen.parentElement.classList.remove('is-changing');
     };
     if (reduced) swap();
     else {
       screen.parentElement.classList.add('is-changing');
-      swapTimer = setTimeout(swap, 160);
+      setTimeout(swap, 160);
     }
   }
   tabs.forEach((tab, index) => {
@@ -112,6 +110,7 @@
     const coords = points.map(point => ({ ...point, x: span ? 60 + (Date.parse(point.verifiedAt) - Date.parse(first.verifiedAt)) / span * 470 : 295, y: 238 - point.total / max * 180 }));
     const graph = document.getElementById('growth-graph');
     graph.querySelector('.graph-line').setAttribute('d', coords.map((point, i) => `${i ? 'L' : 'M'}${point.x} ${point.y}`).join(''));
+    graph.querySelector('.graph-area').setAttribute('d', coords.map((point, i) => `${i ? 'L' : 'M'}${point.x} ${point.y}`).join('') + `L${coords.at(-1).x} 238L${coords[0].x} 238Z`);
     graph.querySelectorAll('.graph-point, .graph-value, .graph-label').forEach(element => element.remove());
     for (const [i, point] of coords.entries()) {
       const circle = document.createElementNS(ns, 'circle');
@@ -124,7 +123,7 @@
     }
     document.getElementById('graph-range').textContent = `${dateLabel(first.verifiedAt)} to ${dateLabel(last.verifiedAt)}, ${new Date(last.verifiedAt).getUTCFullYear()}`;
     document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Dashed connectors compare observations; intervening daily data is unavailable.';
-    document.getElementById('graph-note').textContent = `${points.length} verified snapshots. Dashed connections only; no daily history between observations.`;
+    document.getElementById('graph-note').textContent = `${points.length} verified snapshots; daily history unavailable.`;
   }
   document.addEventListener('podium:downloads', event => renderGraph(event.detail));
   renderGraph(current);
@@ -134,22 +133,52 @@
     renderGraph(current);
   }).catch(() => {});
 
-  const menu = document.querySelector('.menu-toggle');
-  const nav = document.getElementById('main-nav');
-  function closeMenu() { menu?.setAttribute('aria-expanded', 'false'); nav?.classList.remove('is-open'); }
-  menu?.addEventListener('click', () => {
-    const open = menu.getAttribute('aria-expanded') !== 'true';
-    menu.setAttribute('aria-expanded', String(open)); nav.classList.toggle('is-open', open);
-  });
-  nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-  document.addEventListener('keydown', event => { if (event.key === 'Escape' && nav?.classList.contains('is-open')) { closeMenu(); menu.focus(); } });
-  matchMedia('(min-width: 521px)').addEventListener('change', closeMenu);
   document.getElementById('year').textContent = new Date().getFullYear();
   if ('IntersectionObserver' in window && !reduced) {
-    const observer = new IntersectionObserver(entries => {
-      for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
-    }, { threshold: 0.08 });
-    document.querySelectorAll('[data-reveal], .growth-figure').forEach(element => observer.observe(element));
+    // Observe once per element. Scroll never runs a JavaScript animation loop;
+    // CSS only animates opacity and transform after an element enters view.
+    const revealGroups = [
+      ['.hero-copy', '.eyebrow, h1, .hero-lead, .hero-actions, .hero-metrics, .hero-metric-note'],
+      ['.statement', '.section-intro, h2, .statement-bottom > p, .feature-lines > div'],
+      ['.showcase-copy', '.section-intro, h2, .showcase-lead, .showcase-tabs'],
+      ['.details', '.section-intro, h2, .detail-stack article'],
+      ['.journey-head', '.section-intro, h2, p'],
+      ['.attempts-copy', '.story-kicker, h3, p'],
+      ['.pivot', '.story-kicker, h3, p:not(.story-kicker), .name-transition'],
+      ['.weeks', '.story-kicker, .weeks-track, h3, p, .text-link'],
+      ['.ecosystem', '.section-intro, h2, .eco-item'],
+      ['.final-cta', ':scope > img, :scope > .eyebrow, :scope > h2, .download-option']
+    ];
+    const revealObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+
+    for (const [rootSelector, itemSelector] of revealGroups) {
+      const root = document.querySelector(rootSelector);
+      if (!root) continue;
+      root.querySelectorAll(itemSelector).forEach((item, index) => {
+        // The hero starts as the intro clears; later groups stagger briefly.
+        const heroWait = rootSelector === '.hero-copy' ? Math.max(0, 2050 - performance.now()) : 0;
+        item.style.setProperty('--reveal-delay', `${Math.round(heroWait + Math.min(index * 70, 350))}ms`);
+        item.classList.add('scroll-reveal');
+        revealObserver.observe(item);
+      });
+    }
     document.documentElement.classList.add('motion-ready');
+
+    const attemptCells = document.querySelectorAll('.attempt-grid > span');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        attemptCells.forEach((cell, i) => setTimeout(() => cell.classList.add('seen'), i * 55));
+        observer.disconnect();
+      });
+    }, { threshold: .35 });
+    const grid = document.querySelector('.attempt-grid');
+    if (grid) observer.observe(grid);
   }
 })();

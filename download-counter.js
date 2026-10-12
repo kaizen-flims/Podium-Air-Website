@@ -180,16 +180,19 @@ function initializeCounter() {
     }
   }).catch(() => {});
 
-  // Roll once on entry. API requests never hold up the reveal.
-  if (reduced || !('IntersectionObserver' in window)) spin();
-  else {
+  // Preserve V1's opening animation, then reveal the hero counter once.
+  const introAnimation = !reduced && document.querySelector('.intro')?.getAnimations?.()
+    .find(animation => animation.animationName === 'intro-away');
+  const introDone = introAnimation ? introAnimation.finished.catch(() => {}) : Promise.resolve();
+  introDone.then(() => {
+    if (reduced || !('IntersectionObserver' in window)) return spin();
     const observer = new IntersectionObserver(entries => {
       if (!entries.some(entry => entry.isIntersecting)) return;
       observer.disconnect();
       spin().catch(() => { staticDigits(latest.record.total); describe(latest.record, latest.live); });
     }, { threshold: .2 });
     observer.observe(counter);
-  }
+  }).catch(() => { staticDigits(latest.record.total); describe(latest.record, latest.live); });
 
 }
 

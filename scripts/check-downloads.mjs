@@ -32,7 +32,7 @@ try {
     await page.route('https://api.github.com/**', route => route.abort());
     await page.goto(base, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
-    for (const [platform, expected, minimum] of [['android', androidUrl, 2]]) {
+    for (const [platform, expected, minimum] of [['android', androidUrl, 3]]) {
       const links = page.locator(`.download-link[data-platform="${platform}"]`);
       assert(await links.count() >= minimum, `${platform} buttons missing`);
       for (const link of await links.all()) {
@@ -53,15 +53,11 @@ try {
     assert((await page.locator('#screen-image').getAttribute('src')).includes('settings-screen'));
     await page.locator('#tab-settings').press('Home');
     assert.equal(await page.locator('#tab-home').getAttribute('aria-selected'), 'true');
-    if (width <= 520) {
-      await page.locator('.menu-toggle').click();
-      assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'), 'true');
-      await page.locator('.menu-toggle').press('Escape');
-      assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'), 'false');
-    }
+    assert.equal(await page.locator('.hero #download-counter').count(), 1);
+    assert.equal(await page.locator('.hero .graph-area').getAttribute('fill'), 'url(#growth-tint)');
     assert.deepEqual(errors, []);
     await page.locator('.hero-actions').scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${output}/hero-${width}.png` });
+    await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
     await page.locator('#download').scrollIntoViewIfNeeded();
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
     await page.locator('#downloads-count').screenshot({ path: `${output}/metrics-${width}.png` });
@@ -80,7 +76,7 @@ try {
   for (const link of await page.locator('[data-platform="android"]').all()) assert.equal(await link.getAttribute('href'), nextAndroid);
   assert.equal(await page.locator('[data-platform="windows"]').count(), 0);
   await context.close();
-  console.log('PASS: Platform labels/logos/download URLs, 1440/768/390/320px button bounds, no uncaught errors gallery navigation, mobile menu and Android updates.');
+  console.log('PASS: Platform labels/logos/download URLs, 1440/768/390/320px button bounds, no uncaught errors gallery navigation, hero metrics and Android updates.');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

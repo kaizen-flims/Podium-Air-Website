@@ -9,7 +9,7 @@ for (let attempt = 0; attempt < 12; attempt++) {
     const html = await response.text();
     assert(html.includes('id="downloads-count"'), 'Renovation not deployed yet');
     assert(!html.includes('data-platform="windows"'));
-    assert((html.match(/data-platform="android"/g) || []).length === 2);
+    assert((html.match(/data-platform="android"/g) || []).length === 3);
     assert(html.includes('Download Podium Air for Android'));
     await writeFile('download-verification/live-result.txt', 'PASS: renovated Cloudflare site with Android CTA and no Windows download.');
     console.log('PASS: Cloudflare renovation is live.');
