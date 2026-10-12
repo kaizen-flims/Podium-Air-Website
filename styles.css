@@ -174,3 +174,6 @@
 @media(max-width:760px){.hero-copy{padding-top:40px;padding-bottom:0}.hero-metrics{grid-template-columns:.8fr 1.2fr;max-width:410px;gap:22px;margin-top:26px;padding-top:20px}.hero-metrics .download-counter-value{font-size:96px}.graph-value{font-size:34px}.graph-label{font-size:30px}.hero-metric-note{max-width:410px;font-size:9px}}
 @media(max-width:390px){.hero-metrics{gap:16px}.hero-metrics .download-counter-value{font-size:88px}.graph-top{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.button,.nav-download,.button>span:last-child{transition:none}}
+
+/* Softer corners on the primary APK download buttons. */
+.button.download-link{border-radius:18px}
