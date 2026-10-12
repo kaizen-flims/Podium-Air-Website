@@ -64,6 +64,8 @@ try {
     await page.screenshot({ path: `${output}/hero-${width}.png` });
     await page.locator('#download').scrollIntoViewIfNeeded();
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
+    await page.locator('#downloads-count').screenshot({ path: `${output}/metrics-${width}.png` });
+    if (width === 1440 || width === 390) await page.screenshot({ path: `${output}/full-${width}.png`, fullPage: true });
     await context.close();
   }
   // A later valid Android release must update APKs on every APK link.
