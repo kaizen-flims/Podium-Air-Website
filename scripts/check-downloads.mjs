@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 
 const root = resolve('dist');
 const output = resolve('download-verification');
-const windowsUrl = 'https://github.com/kaizen-flims/Podium-Air-Windows-/releases/download/v0.3.0-preview.1/Podium-Air-Windows-0.3.0-x64.msi';
+const windowsUrl = 'https://github.com/kaizen-flims/Podium-Air-Windows-/releases/download/v0.4.0-preview.1/Podium-Air-Windows-0.4.0-x64.msi';
 const androidUrl = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk';
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 const server = createServer(async (req, res) => {
