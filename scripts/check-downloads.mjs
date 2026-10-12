@@ -55,6 +55,10 @@ try {
     assert.equal(await page.locator('#tab-home').getAttribute('aria-selected'), 'true');
     assert.equal(await page.locator('.hero #download-counter').count(), 1);
     assert.equal(await page.locator('.hero .graph-area').getAttribute('fill'), 'url(#growth-tint)');
+    const metricBox = await page.locator('#download-counter').boundingBox();
+    const graphBox = await page.locator('.growth-figure').boundingBox();
+    assert(graphBox.y >= metricBox.y + metricBox.height - 1, 'Graph must sit below full-width counter');
+    assert(metricBox.width >= graphBox.width - 1, 'Counter must own the graph width');
     assert.deepEqual(errors, []);
     await page.locator('.hero-actions').scrollIntoViewIfNeeded();
     await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
@@ -76,6 +80,14 @@ try {
   for (const link of await page.locator('[data-platform="android"]').all()) assert.equal(await link.getAttribute('href'), nextAndroid);
   assert.equal(await page.locator('[data-platform="windows"]').count(), 0);
   await context.close();
+  const motionContext = await browser.newContext({ viewport: { width: 390, height: 900 } });
+  const motionPage = await motionContext.newPage();
+  await motionPage.route('https://api.github.com/**', route => route.abort());
+  await motionPage.goto(base, { waitUntil: 'networkidle' });
+  await motionPage.locator('.growth-figure').scrollIntoViewIfNeeded();
+  await motionPage.waitForFunction(() => document.querySelector('.growth-figure').classList.contains('graph-entered'));
+  assert.equal(await motionPage.locator('#growth-reveal rect').evaluate(el => getComputedStyle(el).animationName), 'growth-draw');
+  await motionContext.close();
   console.log('PASS: Platform labels/logos/download URLs, 1440/768/390/320px button bounds, no uncaught errors gallery navigation, hero metrics and Android updates.');
 } finally {
   await browser?.close();

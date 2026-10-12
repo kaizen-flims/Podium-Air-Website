@@ -100,7 +100,7 @@ function initializeCounter() {
   function staticDigits(total) {
     const digits = String(total);
     // Keep longer future totals inside narrow mobile bars without shrinking labels.
-    value.style.fontSize = digits.length > 6 ? `clamp(70px, ${100 / digits.length}vw, 200px)` : '';
+    value.style.setProperty('--digits', digits.length);
     value.replaceChildren(...[...digits].map(digit => {
       const reel = document.createElement('span');
       reel.className = 'download-counter-digit';

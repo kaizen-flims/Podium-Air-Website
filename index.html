@@ -85,9 +85,9 @@
             <div class="graph-top"><strong>Download growth</strong><span id="graph-range">Oct 7 to Oct 12, 2026</span></div>
             <svg id="growth-graph" viewBox="0 0 580 280" role="img" aria-labelledby="graph-title graph-desc">
               <title id="graph-title">Verified APK download snapshots</title><desc id="graph-desc">209 on October 7; 522 on October 12. Daily data between snapshots is unavailable.</desc>
-              <defs><linearGradient id="growth-tint" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f12846" stop-opacity=".27"/><stop offset="1" stop-color="#f12846" stop-opacity=".025"/></linearGradient></defs>
+              <defs><linearGradient id="growth-tint" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f12846" stop-opacity=".27"/><stop offset="1" stop-color="#f12846" stop-opacity=".025"/></linearGradient><clipPath id="growth-reveal"><rect x="0" y="0" width="580" height="280"/></clipPath></defs>
               <path class="graph-area" d="M60 166L530 58V238H60Z" fill="url(#growth-tint)"/>
-              <path class="graph-line" d="M60 166L530 58"/>
+              <path class="graph-line" clip-path="url(#growth-reveal)" d="M60 166L530 58"/>
               <circle class="graph-point" cx="60" cy="166" r="6"/><circle class="graph-point" cx="530" cy="58" r="6"/>
               <text class="graph-value" x="60" y="148">209</text><text class="graph-value" x="530" y="40" text-anchor="end">522</text>
               <text class="graph-label" x="60" y="266">Oct 7</text><text class="graph-label" x="530" y="266" text-anchor="end">Oct 12</text>

@@ -125,6 +125,18 @@
     document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Dashed connectors compare observations; intervening daily data is unavailable.';
     document.getElementById('graph-note').textContent = `${points.length} verified snapshots; daily history unavailable.`;
   }
+  const growthFigure = document.querySelector('.growth-figure');
+  if (!reduced && 'IntersectionObserver' in window) {
+    const graphObserver = new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      growthFigure.classList.add('graph-entered');
+      graphObserver.disconnect();
+    }, { threshold: .25 });
+    // Start after the V1 intro, so the line reveal is visible to the visitor.
+    const intro = document.querySelector('.intro')?.getAnimations?.().find(animation => animation.animationName === 'intro-away');
+    Promise.resolve(intro?.finished).catch(() => {}).then(() => graphObserver.observe(growthFigure));
+    growthFigure.classList.add('graph-animated');
+  }
   document.addEventListener('podium:downloads', event => renderGraph(event.detail));
   renderGraph(current);
   fetch('download-history.json', { signal: AbortSignal.timeout(4000) }).then(response => { if (!response.ok) throw new Error('History unavailable'); return response.json(); }).then(data => {
