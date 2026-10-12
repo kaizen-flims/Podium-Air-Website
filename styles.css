@@ -175,8 +175,8 @@
 @media(max-width:390px){.hero-metrics{gap:16px}.hero-metrics .download-counter-value{font-size:88px}.graph-top{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.button,.nav-download,.button>span:last-child{transition:none}}
 
-/* Softer corners on the primary APK download buttons. */
-.button.download-link{border-radius:18px}
+/* Stretched pill shape with fully rounded ends on APK download buttons. */
+.button.download-link{border-radius:999px}
 
 /* Let the tall counter own the hero width; growth gets its own row below. */
 .hero-metrics{grid-template-columns:minmax(0,1fr);gap:28px}
