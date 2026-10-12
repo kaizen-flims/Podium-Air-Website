@@ -55,10 +55,12 @@
   const screen = document.getElementById('screen-image');
   const panel = document.getElementById('screen-panel');
   const caption = document.getElementById('screen-caption');
-  const screenIndex = document.getElementById('screen-index');
+
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  let swapTimer;
   function selectTab(tab, focus = false) {
+    clearTimeout(swapTimer);
     const next = screens[tab.dataset.screen];
     tabs.forEach(item => {
       const active = item === tab;
@@ -71,13 +73,13 @@
       screen.src = next.src;
       screen.alt = next.alt;
       caption.textContent = next.caption;
-      screenIndex.textContent = next.index;
+
       screen.parentElement.classList.remove('is-changing');
     };
     if (reduced) swap();
     else {
       screen.parentElement.classList.add('is-changing');
-      setTimeout(swap, 160);
+      swapTimer = setTimeout(swap, 160);
     }
   }
   tabs.forEach((tab, index) => {
@@ -91,52 +93,63 @@
     });
   });
 
+  // Compare real observations only. A dashed connector is not a daily series.
+  const counter = document.getElementById('download-counter');
+  let history = [{ total: 209, verifiedAt: '2026-10-07T10:55:34.000Z' }];
+  let current = { total: Number(counter.dataset.total), verifiedAt: counter.dataset.verifiedAt };
+  const ns = 'http://www.w3.org/2000/svg';
+  const dateLabel = value => new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(value));
+  function renderGraph(record) {
+    if (!Number.isSafeInteger(record.total) || record.total < 0 || !Number.isFinite(Date.parse(record.verifiedAt))) return;
+    if (Date.parse(record.verifiedAt) >= Date.parse(current.verifiedAt)) current = record;
+    const observations = [...history, current].sort((a, b) => Date.parse(a.verifiedAt) - Date.parse(b.verifiedAt));
+    const daily = new Map();
+    for (const item of observations) daily.set(item.verifiedAt.slice(0, 10), item);
+    const points = [...daily.values()];
+    const first = points[0]; const last = points.at(-1);
+    const span = Date.parse(last.verifiedAt) - Date.parse(first.verifiedAt);
+    const max = Math.max(1, ...points.map(point => point.total));
+    const coords = points.map(point => ({ ...point, x: span ? 60 + (Date.parse(point.verifiedAt) - Date.parse(first.verifiedAt)) / span * 470 : 295, y: 238 - point.total / max * 180 }));
+    const graph = document.getElementById('growth-graph');
+    graph.querySelector('.graph-line').setAttribute('d', coords.map((point, i) => `${i ? 'L' : 'M'}${point.x} ${point.y}`).join(''));
+    graph.querySelectorAll('.graph-point, .graph-value, .graph-label').forEach(element => element.remove());
+    for (const [i, point] of coords.entries()) {
+      const circle = document.createElementNS(ns, 'circle');
+      for (const [name, value] of Object.entries({ cx: point.x, cy: point.y, r: 6, class: 'graph-point' })) circle.setAttribute(name, value);
+      graph.append(circle);
+      if (i !== 0 && i !== coords.length - 1) continue;
+      const number = document.createElementNS(ns, 'text');
+      number.setAttribute('x', point.x); number.setAttribute('y', point.y - 18); number.setAttribute('class', 'graph-value'); number.setAttribute('text-anchor', i ? 'end' : 'start'); number.textContent = new Intl.NumberFormat('en').format(point.total); graph.append(number);
+      const label = document.createElementNS(ns, 'text'); label.setAttribute('x', point.x); label.setAttribute('y', 266); label.setAttribute('class', 'graph-label'); label.setAttribute('text-anchor', i ? 'end' : 'start'); label.textContent = dateLabel(point.verifiedAt); graph.append(label);
+    }
+    document.getElementById('graph-range').textContent = `${dateLabel(first.verifiedAt)} to ${dateLabel(last.verifiedAt)}, ${new Date(last.verifiedAt).getUTCFullYear()}`;
+    document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Dashed connectors compare observations; intervening daily data is unavailable.';
+    document.getElementById('graph-note').textContent = `${points.length} verified snapshots. Dashed connections only; no daily history between observations.`;
+  }
+  document.addEventListener('podium:downloads', event => renderGraph(event.detail));
+  renderGraph(current);
+  fetch('download-history.json', { signal: AbortSignal.timeout(4000) }).then(response => { if (!response.ok) throw new Error('History unavailable'); return response.json(); }).then(data => {
+    if (!Array.isArray(data) || !data.length || data.length > 366) return;
+    history = data.filter(item => Number.isSafeInteger(item.total) && item.total >= 0 && Number.isFinite(Date.parse(item.verifiedAt)) && Date.parse(item.verifiedAt) <= Date.now() + 60000);
+    renderGraph(current);
+  }).catch(() => {});
+
+  const menu = document.querySelector('.menu-toggle');
+  const nav = document.getElementById('main-nav');
+  function closeMenu() { menu?.setAttribute('aria-expanded', 'false'); nav?.classList.remove('is-open'); }
+  menu?.addEventListener('click', () => {
+    const open = menu.getAttribute('aria-expanded') !== 'true';
+    menu.setAttribute('aria-expanded', String(open)); nav.classList.toggle('is-open', open);
+  });
+  nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && nav?.classList.contains('is-open')) { closeMenu(); menu.focus(); } });
+  matchMedia('(min-width: 521px)').addEventListener('change', closeMenu);
   document.getElementById('year').textContent = new Date().getFullYear();
   if ('IntersectionObserver' in window && !reduced) {
-    // Observe once per element. Scroll never runs a JavaScript animation loop;
-    // CSS only animates opacity and transform after an element enters view.
-    const revealGroups = [
-      ['.hero-copy', '.eyebrow, h1, .hero-lead, .hero-actions'],
-      ['.statement', '.section-intro, h2, .statement-bottom > p, .feature-lines > div'],
-      ['.showcase-copy', '.section-intro, h2, .showcase-lead, .showcase-tabs'],
-      ['.details', '.section-intro, h2, .detail-stack article'],
-      ['.journey-head', '.section-intro, h2, p'],
-      ['.attempts-copy', '.story-kicker, h3, p'],
-      ['.pivot', '.story-kicker, h3, p:not(.story-kicker), .name-transition'],
-      ['.weeks', '.story-kicker, .weeks-track, h3, p, .text-link'],
-      ['.ecosystem', '.section-intro, h2, .eco-item'],
-      ['.final-cta', ':scope > img, :scope > .eyebrow, :scope > h2, .download-option']
-    ];
-    const revealObserver = new IntersectionObserver(entries => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
-      }
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-
-    for (const [rootSelector, itemSelector] of revealGroups) {
-      const root = document.querySelector(rootSelector);
-      if (!root) continue;
-      root.querySelectorAll(itemSelector).forEach((item, index) => {
-        // The hero starts as the intro clears; later groups stagger briefly.
-        const heroWait = rootSelector === '.hero-copy' ? Math.max(0, 2050 - performance.now()) : 0;
-        item.style.setProperty('--reveal-delay', `${Math.round(heroWait + Math.min(index * 70, 350))}ms`);
-        item.classList.add('scroll-reveal');
-        revealObserver.observe(item);
-      });
-    }
-    document.documentElement.classList.add('motion-ready');
-
-    const attemptCells = document.querySelectorAll('.attempt-grid > span');
     const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        attemptCells.forEach((cell, i) => setTimeout(() => cell.classList.add('seen'), i * 55));
-        observer.disconnect();
-      });
-    }, { threshold: .35 });
-    const grid = document.querySelector('.attempt-grid');
-    if (grid) observer.observe(grid);
+      for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+    }, { threshold: 0.08 });
+    document.querySelectorAll('[data-reveal], .growth-figure').forEach(element => observer.observe(element));
+    document.documentElement.classList.add('motion-ready');
   }
 })();

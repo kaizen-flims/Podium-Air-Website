@@ -6,7 +6,6 @@ import { chromium } from 'playwright';
 
 const root = resolve('dist');
 const output = resolve('download-verification');
-const windowsUrl = 'https://github.com/kaizen-flims/Podium-Air-Windows-/releases/download/v0.4.0-preview.1/Podium-Air-Windows-0.4.0-x64.msi';
 const androidUrl = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk';
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 const server = createServer(async (req, res) => {
@@ -33,7 +32,7 @@ try {
     await page.route('https://api.github.com/**', route => route.abort());
     await page.goto(base, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
-    for (const [platform, expected, minimum] of [['android', androidUrl, 3], ['windows', windowsUrl, 2]]) {
+    for (const [platform, expected, minimum] of [['android', androidUrl, 2]]) {
       const links = page.locator(`.download-link[data-platform="${platform}"]`);
       assert(await links.count() >= minimum, `${platform} buttons missing`);
       for (const link of await links.all()) {
@@ -47,6 +46,19 @@ try {
         assert(await link.evaluate(el => el.scrollWidth <= el.clientWidth + 1), `${platform} label overflows at ${width}px`);
       }
     }
+    assert.equal(await page.locator('[data-platform="windows"]').count(), 0);
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Page overflow at ' + width);
+    await page.locator('#tab-settings').click();
+    await page.waitForTimeout(250);
+    assert((await page.locator('#screen-image').getAttribute('src')).includes('settings-screen'));
+    await page.locator('#tab-settings').press('Home');
+    assert.equal(await page.locator('#tab-home').getAttribute('aria-selected'), 'true');
+    if (width <= 520) {
+      await page.locator('.menu-toggle').click();
+      assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'), 'true');
+      await page.locator('.menu-toggle').press('Escape');
+      assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'), 'false');
+    }
     assert.deepEqual(errors, []);
     await page.locator('.hero-actions').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${output}/hero-${width}.png` });
@@ -54,7 +66,7 @@ try {
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
     await context.close();
   }
-  // A later valid Android release must update APKs without replacing either Windows installer link.
+  // A later valid Android release must update APKs on every APK link.
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await context.newPage();
   const nextAndroid = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.2/Podium-Air-v1.0.2.apk';
@@ -64,9 +76,9 @@ try {
   await page.route('https://api.github.com/repos/kaizen-flims/Podium-Air/releases?**', route => route.abort());
   await page.goto(base, { waitUntil: 'networkidle' });
   for (const link of await page.locator('[data-platform="android"]').all()) assert.equal(await link.getAttribute('href'), nextAndroid);
-  for (const link of await page.locator('[data-platform="windows"]').all()) assert.equal(await link.getAttribute('href'), windowsUrl);
+  assert.equal(await page.locator('[data-platform="windows"]').count(), 0);
   await context.close();
-  console.log('PASS: Platform labels/logos/download URLs, 1440/768/390/320px button bounds, no uncaught errors and Android-update isolation.');
+  console.log('PASS: Platform labels/logos/download URLs, 1440/768/390/320px button bounds, no uncaught errors gallery navigation, mobile menu and Android updates.');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

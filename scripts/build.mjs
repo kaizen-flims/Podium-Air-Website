@@ -27,6 +27,13 @@ try {
   downloadSnapshot = { total: Number(total), verifiedAt };
 }
 await writeFile('dist/download-count.json', JSON.stringify(downloadSnapshot));
+const savedHistory = JSON.parse(await readFile('download-history.json', 'utf8'));
+const byDay = new Map();
+for (const point of [...savedHistory, downloadSnapshot].sort((a,b) => Date.parse(a.verifiedAt) - Date.parse(b.verifiedAt))) {
+  if (Number.isSafeInteger(point.total) && point.total >= 0 && Number.isFinite(Date.parse(point.verifiedAt))) byDay.set(point.verifiedAt.slice(0, 10), point);
+}
+await writeFile('dist/download-history.json', JSON.stringify([...byDay.values()]));
+
 for (const page of ['index.html', 'privacy.html']) {
   const source = await readFile(`dist/${page}`, 'utf8');
   let html = source.replace('href="styles.css"', `href="styles.css?v=${cssVersion}"`)
