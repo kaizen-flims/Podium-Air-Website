@@ -55,6 +55,15 @@ try {
     assert.equal(await page.locator('#tab-home').getAttribute('aria-selected'), 'true');
     assert.equal(await page.locator('.hero #download-counter').count(), 1);
     assert.equal(await page.locator('.hero .graph-area').getAttribute('fill'), 'url(#growth-tint)');
+    await page.evaluate(() => document.fonts.ready);
+    const glyphsFit = await page.locator('.download-counter-digit').evaluateAll(digits => digits.every(digit => {
+      const style = getComputedStyle(digit);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+      return ctx.measureText(digit.textContent.trim()).width <= digit.getBoundingClientRect().width;
+    }));
+    assert(glyphsFit, 'Counter digit slot must fit the complete glyph at ' + width);
     const metricBox = await page.locator('#download-counter').boundingBox();
     const graphBox = await page.locator('.growth-figure').boundingBox();
     assert(graphBox.y >= metricBox.y + metricBox.height - 1, 'Graph must sit below full-width counter');

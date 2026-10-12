@@ -155,7 +155,7 @@
 .hero-metrics .download-counter{display:flex;flex-direction:column;align-items:flex-start;gap:0;width:auto;min-height:0;padding:0;background:transparent;color:var(--ink);border-radius:0}
 .hero-metrics .download-counter-label{font-size:8px;color:var(--muted);letter-spacing:.1em}
 .hero-metrics .download-counter-value{font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-size:var(--counter-size,110px);font-weight:700;line-height:1;letter-spacing:0;justify-content:flex-start;color:var(--red);margin-top:5px}
-.hero-metrics .download-counter-digit{width:.43em;flex-basis:.43em}
+.hero-metrics .download-counter-digit{width:.6em;flex-basis:.6em}
 .metric-name{font-size:12px;font-weight:800;letter-spacing:-.02em;margin-top:5px}
 .hero-metrics .download-counter-proof{font-size:9px;text-align:left;margin-top:7px;color:var(--muted);letter-spacing:0;min-height:20px;display:inline-flex;align-items:center}
 .hero-metrics .download-counter-proof:hover{color:var(--red)}
@@ -181,14 +181,14 @@
 /* Let the tall counter own the hero width; growth gets its own row below. */
 .hero-metrics{grid-template-columns:minmax(0,1fr);gap:28px}
 .hero-metrics .download-counter{width:100%}
-.hero-metrics .download-counter-value{font-size:min(340px,calc(500px / (var(--digits,3) * .43)));width:100%}
+.hero-metrics .download-counter-value{font-size:min(340px,calc(500px / (var(--digits,3) * .6)));width:100%}
 .hero-metrics .download-counter-label{font-size:10px}
 .hero-metrics .metric-name{font-size:18px;margin-top:12px}
 .hero-metrics .download-counter-proof{font-size:11px;margin-top:8px}
 .graph-top{flex-direction:row;justify-content:space-between;align-items:center;font-size:13px}
 .graph-top>span{font-size:11px}
 .growth-figure figcaption{font-size:10px}
-@media(max-width:760px){.hero-metrics{grid-template-columns:minmax(0,1fr);gap:28px}.hero-metrics .download-counter-value{font-size:min(300px,calc((100vw - 52px) / (var(--digits,3) * .43)))}.graph-top{font-size:12px}.graph-top>span{font-size:10px}.graph-label{font-size:22px}}
+@media(max-width:760px){.hero-metrics{grid-template-columns:minmax(0,1fr);gap:28px}.hero-metrics .download-counter-value{font-size:min(300px,calc((100vw - 52px) / (var(--digits,3) * .6)))}.graph-top{font-size:12px}.graph-top>span{font-size:10px}.graph-label{font-size:22px}}
 @media(prefers-reduced-motion:no-preference){
   .graph-animated #growth-reveal rect{transform:scaleX(0);transform-box:fill-box;transform-origin:left center}
   .graph-animated .graph-area,.graph-animated .graph-point{opacity:0}
