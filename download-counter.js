@@ -100,7 +100,7 @@ function initializeCounter() {
   function staticDigits(total) {
     const digits = String(total);
     // Keep longer future totals inside narrow mobile bars without shrinking labels.
-    if (digits.length > 6) value.style.setProperty('--counter-size', '24px');
+    value.style.setProperty('--digits', digits.length);
     value.replaceChildren(...[...digits].map(digit => {
       const reel = document.createElement('span');
       reel.className = 'download-counter-digit';
@@ -110,13 +110,14 @@ function initializeCounter() {
   }
 
   function describe(record, live) {
-    label.textContent = live ? 'LIVE DOWNLOADS' : 'LAST VERIFIED';
+    label.textContent = live ? 'GITHUB VERIFIED' : 'LAST VERIFIED';
     counter.dataset.total = String(record.total);
     counter.dataset.source = live ? 'live' : 'snapshot';
     counter.dataset.verifiedAt = record.verifiedAt;
     const checked = new Date(record.verifiedAt).toLocaleString();
     counter.title = `Total APK release-asset downloads across Podium Air releases, not unique users. Verified ${checked}.`;
-    announcement.textContent = `${record.total} APK release-asset downloads. ${live ? 'Live from GitHub.' : `Last verified ${checked}.`}`;
+    document.dispatchEvent(new CustomEvent('podium:downloads', { detail: record }));
+    announcement.textContent = `${record.total} APK release-asset downloads. ${live ? `Verified from GitHub ${checked}.` : `Last verified ${checked}.`}`;
   }
 
   async function spin() {
@@ -129,7 +130,7 @@ function initializeCounter() {
     }
     const targetDigits = String(record.total);
     const startDigits = String(snapshot.total).padStart(targetDigits.length, '0').slice(-targetDigits.length);
-    if (targetDigits.length > 6) value.style.setProperty('--counter-size', '24px');
+
     const animations = [];
     const reels = [...targetDigits].map((digit, index) => {
       const reel = document.createElement('span');
@@ -179,16 +180,20 @@ function initializeCounter() {
     }
   }).catch(() => {});
 
-  // Preserve the site's existing logo intro, then make the full two-second roll visible.
-  // Reduced-motion visitors see verified data promptly and never wait for an animation.
+  // Preserve V1's opening animation, then reveal the hero counter once.
   const introAnimation = !reduced && document.querySelector('.intro')?.getAnimations?.()
     .find(animation => animation.animationName === 'intro-away');
   const introDone = introAnimation ? introAnimation.finished.catch(() => {}) : Promise.resolve();
-  // Start on time even on a slow/offline connection. A response received while
-  // rolling is used at the final lock; a later response updates the static total.
-  Promise.resolve(introDone)
-    .then(() => spin())
-    .catch(() => { staticDigits(snapshot.total); describe(snapshot, false); });
+  introDone.then(() => {
+    if (reduced || !('IntersectionObserver' in window)) return spin();
+    const observer = new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      observer.disconnect();
+      spin().catch(() => { staticDigits(latest.record.total); describe(latest.record, latest.live); });
+    }, { threshold: .2 });
+    observer.observe(counter);
+  }).catch(() => { staticDigits(latest.record.total); describe(latest.record, latest.live); });
+
 }
 
 // Independent module: API, storage, and counter failures cannot stop script.js.

@@ -91,12 +91,66 @@
     });
   });
 
+  // Compare real observations only. A dashed connector is not a daily series.
+  const counter = document.getElementById('download-counter');
+  let history = [{ total: 209, verifiedAt: '2026-10-07T10:55:34.000Z' }];
+  let current = { total: Number(counter.dataset.total), verifiedAt: counter.dataset.verifiedAt };
+  const ns = 'http://www.w3.org/2000/svg';
+  const dateLabel = value => new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(value));
+  function renderGraph(record) {
+    if (!Number.isSafeInteger(record.total) || record.total < 0 || !Number.isFinite(Date.parse(record.verifiedAt))) return;
+    if (Date.parse(record.verifiedAt) >= Date.parse(current.verifiedAt)) current = record;
+    const observations = [...history, current].sort((a, b) => Date.parse(a.verifiedAt) - Date.parse(b.verifiedAt));
+    const daily = new Map();
+    for (const item of observations) daily.set(item.verifiedAt.slice(0, 10), item);
+    const points = [...daily.values()];
+    const first = points[0]; const last = points.at(-1);
+    const span = Date.parse(last.verifiedAt) - Date.parse(first.verifiedAt);
+    const max = Math.max(1, ...points.map(point => point.total));
+    const coords = points.map(point => ({ ...point, x: span ? 60 + (Date.parse(point.verifiedAt) - Date.parse(first.verifiedAt)) / span * 470 : 295, y: 238 - point.total / max * 180 }));
+    const graph = document.getElementById('growth-graph');
+    graph.querySelector('.graph-line').setAttribute('d', coords.map((point, i) => `${i ? 'L' : 'M'}${point.x} ${point.y}`).join(''));
+    graph.querySelector('.graph-area').setAttribute('d', coords.map((point, i) => `${i ? 'L' : 'M'}${point.x} ${point.y}`).join('') + `L${coords.at(-1).x} 238L${coords[0].x} 238Z`);
+    graph.querySelectorAll('.graph-point, .graph-value, .graph-label').forEach(element => element.remove());
+    for (const [i, point] of coords.entries()) {
+      const circle = document.createElementNS(ns, 'circle');
+      for (const [name, value] of Object.entries({ cx: point.x, cy: point.y, r: 6, class: 'graph-point' })) circle.setAttribute(name, value);
+      graph.append(circle);
+      if (i !== 0 && i !== coords.length - 1) continue;
+      const number = document.createElementNS(ns, 'text');
+      number.setAttribute('x', point.x); number.setAttribute('y', point.y - 18); number.setAttribute('class', 'graph-value'); number.setAttribute('text-anchor', i ? 'end' : 'start'); number.textContent = new Intl.NumberFormat('en').format(point.total); graph.append(number);
+      const label = document.createElementNS(ns, 'text'); label.setAttribute('x', point.x); label.setAttribute('y', 266); label.setAttribute('class', 'graph-label'); label.setAttribute('text-anchor', i ? 'end' : 'start'); label.textContent = dateLabel(point.verifiedAt); graph.append(label);
+    }
+    document.getElementById('graph-range').textContent = `${dateLabel(first.verifiedAt)} to ${dateLabel(last.verifiedAt)}, ${new Date(last.verifiedAt).getUTCFullYear()}`;
+    document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Dashed connectors compare observations; intervening daily data is unavailable.';
+    document.getElementById('graph-note').textContent = `${points.length} verified snapshots; daily history unavailable.`;
+  }
+  const growthFigure = document.querySelector('.growth-figure');
+  if (!reduced && 'IntersectionObserver' in window) {
+    const graphObserver = new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      growthFigure.classList.add('graph-entered');
+      graphObserver.disconnect();
+    }, { threshold: .25 });
+    // Start after the V1 intro, so the line reveal is visible to the visitor.
+    const intro = document.querySelector('.intro')?.getAnimations?.().find(animation => animation.animationName === 'intro-away');
+    Promise.resolve(intro?.finished).catch(() => {}).then(() => graphObserver.observe(growthFigure));
+    growthFigure.classList.add('graph-animated');
+  }
+  document.addEventListener('podium:downloads', event => renderGraph(event.detail));
+  renderGraph(current);
+  fetch('download-history.json', { signal: AbortSignal.timeout(4000) }).then(response => { if (!response.ok) throw new Error('History unavailable'); return response.json(); }).then(data => {
+    if (!Array.isArray(data) || !data.length || data.length > 366) return;
+    history = data.filter(item => Number.isSafeInteger(item.total) && item.total >= 0 && Number.isFinite(Date.parse(item.verifiedAt)) && Date.parse(item.verifiedAt) <= Date.now() + 60000);
+    renderGraph(current);
+  }).catch(() => {});
+
   document.getElementById('year').textContent = new Date().getFullYear();
   if ('IntersectionObserver' in window && !reduced) {
     // Observe once per element. Scroll never runs a JavaScript animation loop;
     // CSS only animates opacity and transform after an element enters view.
     const revealGroups = [
-      ['.hero-copy', '.eyebrow, h1, .hero-lead, .hero-actions'],
+      ['.hero-copy', '.eyebrow, h1, .hero-lead, .hero-actions, .hero-metrics, .hero-metric-note'],
       ['.statement', '.section-intro, h2, .statement-bottom > p, .feature-lines > div'],
       ['.showcase-copy', '.section-intro, h2, .showcase-lead, .showcase-tabs'],
       ['.details', '.section-intro, h2, .detail-stack article'],

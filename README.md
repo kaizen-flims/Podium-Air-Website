@@ -16,11 +16,11 @@ The workflow supplies `SITE_URL` so the sitemap includes the repository path. If
 
 The Android buttons start with a verified signed v1.0.1 APK URL and then checks GitHub's public latest-release endpoint. It accepts only non-draft, non-prerelease semver tags with a matching `Podium-Air-vX.Y.Z.apk` asset in the app repository. On errors or rate limits, the verified fallback stays in place. Update the fallback in `index.html` and `script.js` after a future stable release if you want API-offline visitors to get the newest version too.
 
-The hero and download section also offer a Windows x64 MSI, linked directly to the explicitly published `v0.2.0-preview.1` release asset in `kaizen-flims/Podium-Air-Windows-`. It is labelled as an unsigned local-music preview. Android release discovery updates only anchors marked `data-platform="android"`; it cannot replace Windows links. Both platforms have inline SVG logos, responsive controls and separate compatibility/version notes. Windows source and preview notes are linked alongside the download.
+Windows preview downloads are currently removed. Android buttons retain their platform icon, stable release URL and compatibility note.
 
 ## APK download counter
 
-The compact counter below the header sums uploaded Podium Air APK assets across all public releases, including paginated results and future version or architecture names. It counts release-asset downloads, not unique users. The GitHub link opens the public releases as the source of the count.
+The tall rolling counter is inside the hero, under the Android CTA. It counts uploaded APK release-asset downloads, including repeats. The adjacent red graph compares genuine dated snapshots with a dashed connector and a translucent red fill; daily history between observations is unavailable.
 
 Cloudflare Pages serves `/api/downloads` through `functions/api/downloads.js`, sharing verified GitHub results for up to two minutes and retaining a last verified snapshot for API failures. `_routes.json` limits function invocations to that endpoint, keeping the rest of the website static. GitHub Pages falls back to the public GitHub API directly. No token or secret is needed.
 
@@ -30,6 +30,6 @@ Every build refreshes the verified HTML fallback from GitHub when available. The
 
 ## Assets and source
 
-The app icon comes from the Podium Air application repository. The app screenshots were provided by Prem and show the actual app, including visible account and update dialogs. They are not fabricated product screens. The site has no runtime dependency or third-party font. App source and its GPLv3/upstream notices live in the [Android repository](https://github.com/kaizen-flims/Podium-Air).
+The app icon comes from the Podium Air application repository. The app screenshots were provided by Prem and show the actual app, including visible account and update dialogs. They are not fabricated product screens. The site has no runtime library dependency. Tall digits use self-hosted Barlow Condensed Bold under the included SIL Open Font License. App source and its GPLv3/upstream notices live in the [Android repository](https://github.com/kaizen-flims/Podium-Air).
 
-The independent platform-download verification workflow checks both platforms in Chromium at 1440/768/390/320 px, checks their labels/logos/links and confirms that a future Android API result cannot replace the Windows installer link. It also verifies the live Cloudflare HTML after deployment. Screenshots and live evidence are uploaded as `Platform-download-verification`. Playwright 1.62.1 is installed only for CI verification; the public site remains dependency-free.
+The verification workflow checks Android buttons at 1440/768/390/320px, APK release discovery, gallery keyboard access, hero counter placement and red graph fill. Screenshots include the complete V1 hero and full desktop/mobile pages. Changes go through a pull request; production publication requires review/merge under AGENTS.md.
