@@ -5,3 +5,12 @@
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+/api/downloads
+  Cache-Control: no-store
+
+/download-count.json
+  Cache-Control: no-store
+
+/download-history.json
+  Cache-Control: no-store

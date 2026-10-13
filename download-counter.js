@@ -38,6 +38,7 @@ export async function fetchDownloadTotal({ timeoutMs = 6000, headers = {} } = {}
     for (let page = 1; ; page++) {
       const response = await fetch(`${RELEASES_URL}?per_page=100&page=${page}`, {
         headers: { ...headers, Accept: 'application/vnd.github+json' },
+        cache: 'no-store',
         signal: controller.signal
       });
       if (!response.ok) {
@@ -62,21 +63,25 @@ export function validSnapshot(snapshot) {
     Number.isFinite(time) && time <= Date.now() + 60000;
 }
 
-async function loadLiveTotal() {
-  // Cloudflare serves a short-lived edge cache. GitHub Pages and local previews
-  // can still use the public GitHub API without a server or credentials.
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+export async function loadLiveTotal() {
+  // Even a successful same-site response can be a stale fallback. In that case
+  // try the visitor's GitHub quota before retaining the verified server result.
+  let fallback;
   try {
-    const response = await fetch('api/downloads', { signal: controller.signal, cache: 'no-store' });
+    const response = await fetch(`api/downloads?refresh=${Date.now()}`, {
+      signal: AbortSignal.timeout(10000), cache: 'no-store'
+    });
     if (!response.ok) throw new Error('Same-site counter unavailable');
     const record = await response.json();
     if (!validSnapshot(record) || typeof record.live !== 'boolean') throw new Error('Invalid counter snapshot');
-    return { record, live: record.live };
-  } catch {
+    if (record.live) return { record, live: true };
+    fallback = record;
+  } catch { /* GitHub Pages/local previews have no Pages Function. */ }
+  try {
     return { record: await fetchDownloadTotal(), live: true };
-  } finally {
-    clearTimeout(timeout);
+  } catch (error) {
+    if (fallback) return { record: fallback, live: false };
+    throw error;
   }
 }
 
@@ -129,6 +134,7 @@ function initializeCounter() {
       return;
     }
     const targetDigits = String(record.total);
+    value.style.setProperty('--digits', targetDigits.length);
     const startDigits = String(snapshot.total).padStart(targetDigits.length, '0').slice(-targetDigits.length);
 
     const animations = [];
@@ -169,16 +175,37 @@ function initializeCounter() {
 
   staticDigits(snapshot.total);
   describe(snapshot, false);
-  loadLiveTotal().then(result => {
-    // Do not replace a newer local snapshot with an older server fallback.
-    if (!result.live && Date.parse(result.record.verifiedAt) < Date.parse(latest.record.verifiedAt)) return;
+  function accept(result, persist = true) {
+    // Timestamp ordering prevents late network responses and stale tabs from
+    // rolling the counter back. A newer GitHub observation may legitimately
+    // decrease if a release asset was removed.
+    if (!validSnapshot(result.record) || Date.parse(result.record.verifiedAt) < Date.parse(latest.record.verifiedAt)) return;
     latest = result;
-    try { localStorage.setItem(cacheKey, JSON.stringify(result.record)); } catch { /* Optional cache. */ }
+    if (persist) {
+      try { localStorage.setItem(cacheKey, JSON.stringify(result.record)); } catch { /* Optional cache. */ }
+    }
     if (reduced || settled) {
       staticDigits(result.record.total);
       describe(result.record, result.live);
     }
-  }).catch(() => {});
+  }
+  let pending = false;
+  async function refresh() {
+    if (pending || document.visibilityState === 'hidden') return;
+    pending = true;
+    try { accept(await loadLiveTotal()); }
+    catch { latest = { ...latest, live: false }; describe(latest.record, false); }
+    finally { pending = false; }
+  }
+  refresh();
+  setInterval(refresh, 60000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
+  window.addEventListener('online', refresh);
+  window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
+  window.addEventListener('storage', event => {
+    if (event.key !== cacheKey || !event.newValue) return;
+    try { accept({ record: JSON.parse(event.newValue), live: false }, false); } catch { /* Invalid storage is ignored. */ }
+  });
 
   // Preserve V1's opening animation, then reveal the hero counter once.
   const introAnimation = !reduced && document.querySelector('.intro')?.getAnimations?.()
