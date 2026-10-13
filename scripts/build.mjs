@@ -1,6 +1,6 @@
 import { cp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { fetchDownloadTotal } from '../download-counter.js';
+import { fetchDownloadTotal, validSnapshot } from '../download-counter.js';
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
@@ -25,6 +25,10 @@ try {
   const source = await readFile('index.html', 'utf8');
   const [, total, verifiedAt] = source.match(/data-total="(\d+)" data-verified-at="([^"]+)"/);
   downloadSnapshot = { total: Number(total), verifiedAt };
+  try {
+    const saved = JSON.parse(await readFile('download-count.json', 'utf8'));
+    if (validSnapshot(saved) && Date.parse(saved.verifiedAt) > Date.parse(downloadSnapshot.verifiedAt)) downloadSnapshot = saved;
+  } catch { /* The verified HTML remains available. */ }
 }
 await writeFile('dist/download-count.json', JSON.stringify(downloadSnapshot));
 const savedHistory = JSON.parse(await readFile('download-history.json', 'utf8'));

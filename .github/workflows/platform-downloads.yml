@@ -21,7 +21,7 @@ jobs:
       - name: Check scripts and build static site
         env:
           SITE_URL: https://podium-air-website.pages.dev
-        run: npm run check && npm run build
+        run: npm run check && npm test && npm run build
       - name: Install pinned browser verification tools
         run: |
           npm install --no-save --package-lock=false playwright@1.62.1
@@ -32,6 +32,7 @@ jobs:
           set -euo pipefail
           mkdir -p download-verification
           node scripts/check-downloads.mjs | tee download-verification/result.txt
+          node scripts/check-counter-browser.mjs
       - name: Verify published Cloudflare platform buttons
         if: github.event_name == 'push'
         run: node scripts/check-live-downloads.mjs

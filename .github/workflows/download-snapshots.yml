@@ -1,0 +1,43 @@
+name: Refresh verified APK downloads
+on:
+  schedule:
+    - cron: '3-58/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [download-counter.js, scripts/refresh-downloads.mjs, .github/workflows/download-snapshots.yml]
+permissions:
+  contents: write
+concurrency:
+  group: verified-download-snapshots
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Load published history
+        run: |
+          if git fetch origin download-data; then
+            git show FETCH_HEAD:download-history.json > download-history.json
+          fi
+      - name: Fetch authenticated GitHub release counts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/refresh-downloads.mjs
+      - name: Publish data without rebuilding the website
+        run: |
+          mkdir /tmp/download-snapshot
+          cp download-count.json download-history.json /tmp/download-snapshot/
+          git checkout --orphan snapshot-publish
+          git rm -rf .
+          cp /tmp/download-snapshot/*.json .
+          git add download-count.json download-history.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Refresh verified APK download observations [skip ci]'
+          git push origin HEAD:download-data --force

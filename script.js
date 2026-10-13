@@ -93,7 +93,7 @@
 
   // Compare real observations only. A dashed connector is not a daily series.
   const counter = document.getElementById('download-counter');
-  let history = [{ total: 209, verifiedAt: '2026-10-07T10:55:34.000Z' }];
+  let history = [];
   let current = { total: Number(counter.dataset.total), verifiedAt: counter.dataset.verifiedAt };
   const ns = 'http://www.w3.org/2000/svg';
   const dateLabel = value => new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(value));
@@ -139,11 +139,24 @@
   }
   document.addEventListener('podium:downloads', event => renderGraph(event.detail));
   renderGraph(current);
-  fetch('download-history.json', { signal: AbortSignal.timeout(4000) }).then(response => { if (!response.ok) throw new Error('History unavailable'); return response.json(); }).then(data => {
+  fetch('download-history.json', { signal: AbortSignal.timeout(4000), cache: 'no-store' }).then(response => { if (!response.ok) throw new Error('History unavailable'); return response.json(); }).then(data => {
     if (!Array.isArray(data) || !data.length || data.length > 366) return;
-    history = data.filter(item => Number.isSafeInteger(item.total) && item.total >= 0 && Number.isFinite(Date.parse(item.verifiedAt)) && Date.parse(item.verifiedAt) <= Date.now() + 60000);
+    history = [...history, ...data].filter(item => Number.isSafeInteger(item.total) && item.total >= 0 && Number.isFinite(Date.parse(item.verifiedAt)) && Date.parse(item.verifiedAt) <= Date.now() + 60000);
     renderGraph(current);
   }).catch(() => {});
+
+  async function refreshHistory() {
+    try {
+      const response = await fetch(`https://raw.githubusercontent.com/kaizen-flims/Podium-Air-Website/download-data/download-history.json?refresh=${Date.now()}`, { cache: 'no-store', signal: AbortSignal.timeout(6000) });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!Array.isArray(data) || data.length > 366) return;
+      history = data.filter(item => Number.isSafeInteger(item.total) && item.total >= 0 && Number.isFinite(Date.parse(item.verifiedAt)) && Date.parse(item.verifiedAt) <= Date.now() + 60000);
+      renderGraph(current);
+    } catch { /* Retain verified history and the latest counter observation. */ }
+  }
+  refreshHistory();
+  setInterval(() => { if (document.visibilityState !== 'hidden') refreshHistory(); }, 300000);
 
   document.getElementById('year').textContent = new Date().getFullYear();
   if ('IntersectionObserver' in window && !reduced) {

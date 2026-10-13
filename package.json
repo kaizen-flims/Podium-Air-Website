@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --test tests/downloads.test.mjs",
     "build": "node scripts/build.mjs",
     "check": "node --check script.js && node --check download-counter.js && node --check functions/api/downloads.js"
   }
