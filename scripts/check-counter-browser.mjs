@@ -10,7 +10,7 @@ let failure = false, requests = 0;
 const server = createServer(async (req, res) => {
   const path = new URL(req.url, 'http://local').pathname;
   if (path === '/api/downloads') { requests++; res.writeHead(failure ? 503 : 200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(snapshot)); return; }
-  try { res.setHeader('Content-Type', mime[extname(path)] || 'application/octet-stream'); res.end(await readFile(resolve(root, path === '/' ? 'index.html' : '.' + path))); }
+  try { res.setHeader('Content-Type', mime[extname(path === '/' ? 'index.html' : path)] || 'application/octet-stream'); res.end(await readFile(resolve(root, path === '/' ? 'index.html' : '.' + path))); }
   catch { res.writeHead(404); res.end(); }
 });
 await new Promise(done => server.listen(0, '127.0.0.1', done));
@@ -23,7 +23,7 @@ try {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.clock.install();
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
-  const count = () => page.locator('#download-count').innerText();
+  const count = () => page.locator('#download-count').textContent();
   await page.waitForFunction(() => document.querySelector('#download-counter').dataset.total === '1200');
   const prior = requests;
   snapshot = { total: 1210, verifiedAt: new Date(Date.now() + 1000).toISOString(), live: true };
