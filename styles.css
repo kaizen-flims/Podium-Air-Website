@@ -198,3 +198,12 @@
 }
 @keyframes growth-draw{to{transform:scaleX(1)}}
 @keyframes growth-tint-in{to{opacity:1}}
+
+/* Released desktop downloads reuse V1 buttons and remain readable on mobile. */
+.final-cta .platform-downloads { grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(100%, 1080px); }
+.final-cta .version-note { color: inherit; white-space: normal; margin-top: 12px; line-height: 1.6; }
+.intel-download { display: inline-block; min-height: 24px; text-decoration: underline; text-underline-offset: 3px; }
+.hero-actions .version-note { white-space: normal; }
+@media (max-width: 1000px) {
+  .final-cta .platform-downloads { grid-template-columns: minmax(0, 1fr); max-width: 410px; }
+}

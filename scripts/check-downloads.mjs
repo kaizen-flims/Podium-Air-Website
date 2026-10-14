@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 
 const root = resolve('dist');
 const output = resolve('download-verification');
-const androidUrl = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk';
+const androidUrl = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.2/Podium-Air-v1.0.2.apk';
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 const server = createServer(async (req, res) => {
   try {
@@ -32,12 +32,12 @@ try {
     await page.route('https://api.github.com/**', route => route.abort());
     await page.goto(base, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
-    for (const [platform, expected, minimum] of [['android', androidUrl, 3]]) {
+    for (const [platform, expected, minimum] of [['android', androidUrl, 3], ['windows', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-windows-x64-setup.exe', 2], ['macos', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-arm64.dmg', 2]]) {
       const links = page.locator(`.download-link[data-platform="${platform}"]`);
       assert(await links.count() >= minimum, `${platform} buttons missing`);
       for (const link of await links.all()) {
         assert.equal(await link.getAttribute('href'), expected);
-        assert.equal((await link.locator('.download-label').textContent()).trim(), `Download Podium Air for ${platform === 'android' ? 'Android' : 'Windows'}`);
+        assert.equal((await link.locator('.download-label').textContent()).trim(), `Download Podium Air for ${({android: 'Android', windows: 'Windows', macos: 'macOS'})[platform]}`);
         assert.equal(await link.locator('svg use').getAttribute('href'), `#platform-${platform}`);
         await link.scrollIntoViewIfNeeded();
         const box = await link.boundingBox();
@@ -46,7 +46,8 @@ try {
         assert(await link.evaluate(el => el.scrollWidth <= el.clientWidth + 1), `${platform} label overflows at ${width}px`);
       }
     }
-    assert.equal(await page.locator('[data-platform="windows"]').count(), 0);
+    assert.equal(await page.locator('[data-platform="windows"]').count(), 2);
+    for (const link of await page.locator('.intel-download').all()) assert.equal(await link.getAttribute('href'), 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-x64.dmg');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Page overflow at ' + width);
     await page.locator('#tab-settings').click();
     await page.waitForTimeout(250);
@@ -80,14 +81,15 @@ try {
   // A later valid Android release must update APKs on every APK link.
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await context.newPage();
-  const nextAndroid = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.2/Podium-Air-v1.0.2.apk';
+  const nextAndroid = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.3/Podium-Air-v1.0.3.apk';
   await page.route('https://api.github.com/repos/kaizen-flims/Podium-Air/releases/latest', route => route.fulfill({
-    contentType: 'application/json', body: JSON.stringify({ draft: false, prerelease: false, tag_name: 'v1.0.2', assets: [{ name: 'Podium-Air-v1.0.2.apk', state: 'uploaded', browser_download_url: nextAndroid }] })
+    contentType: 'application/json', body: JSON.stringify({ draft: false, prerelease: false, tag_name: 'v1.0.3', assets: [{ name: 'Podium-Air-v1.0.3.apk', state: 'uploaded', browser_download_url: nextAndroid }] })
   }));
   await page.route('https://api.github.com/repos/kaizen-flims/Podium-Air/releases?**', route => route.abort());
   await page.goto(base, { waitUntil: 'networkidle' });
   for (const link of await page.locator('[data-platform="android"]').all()) assert.equal(await link.getAttribute('href'), nextAndroid);
-  assert.equal(await page.locator('[data-platform="windows"]').count(), 0);
+  assert.equal(await page.locator('[data-platform="windows"]').count(), 2);
+    for (const link of await page.locator('.intel-download').all()) assert.equal(await link.getAttribute('href'), 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-x64.dmg');
   await context.close();
   const motionContext = await browser.newContext({ viewport: { width: 390, height: 900 } });
   const motionPage = await motionContext.newPage();

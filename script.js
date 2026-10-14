@@ -2,8 +2,8 @@
   'use strict';
 
   const fallback = {
-    version: 'v1.0.1',
-    url: 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.1/Podium-Air-v1.0.1.apk'
+    version: 'v1.0.2',
+    url: 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.2/Podium-Air-v1.0.2.apk'
   };
 
   function applyRelease(release) {
