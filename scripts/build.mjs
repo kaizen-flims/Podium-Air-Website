@@ -7,6 +7,7 @@ await mkdir('dist', { recursive: true });
 for (const file of ['index.html', 'privacy.html', 'styles.css', 'script.js', 'download-counter.js', 'robots.txt', '_headers', '_routes.json']) {
   await cp(file, `dist/${file}`);
 }
+await cp('google97acfcede1709f28.html', 'dist/google97acfcede1709f28.html');
 await cp('assets', 'dist/assets', { recursive: true });
 
 // Version CSS and JS URLs from their content so a fresh deploy does not reuse
