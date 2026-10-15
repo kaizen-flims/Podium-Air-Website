@@ -56,7 +56,7 @@ for (const page of ['index.html', 'privacy.html']) {
 
 // SITE_URL may include a project path, as on GitHub Pages. Cloudflare supplies
 // CF_PAGES_URL when the site is built there instead.
-const suppliedUrl = process.env.SITE_URL || process.env.CF_PAGES_URL;
+const suppliedUrl = process.env.SITE_URL || 'https://podium-air-website.pages.dev';
 if (suppliedUrl) {
   const url = new URL(suppliedUrl);
   if (url.protocol !== 'https:') throw new Error('SITE_URL must use HTTPS');
