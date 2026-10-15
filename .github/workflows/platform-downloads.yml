@@ -2,7 +2,7 @@ name: Verify platform downloads
 on:
   push:
     branches: [main]
-    paths: [index.html, styles.css, script.js, scripts/check-downloads.mjs, .github/workflows/platform-downloads.yml]
+    paths: [index.html, styles.css, script.js, scripts/check-downloads.mjs, scripts/check-live-downloads.mjs, .github/workflows/platform-downloads.yml]
   pull_request:
 permissions:
   contents: read
