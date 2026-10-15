@@ -32,7 +32,7 @@ try {
     await page.route('https://api.github.com/**', route => route.abort());
     await page.goto(base, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
-    for (const [platform, expected, minimum] of [['android', androidUrl, 3], ['windows', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-windows-x64-setup.exe', 2], ['macos', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-arm64.dmg', 2]]) {
+    for (const [platform, expected, minimum] of [['android', androidUrl, 1], ['windows', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-windows-x64-setup.exe', 1], ['macos', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-arm64.dmg', 1]]) {
       const links = page.locator(`.download-link[data-platform="${platform}"]`);
       assert(await links.count() >= minimum, `${platform} buttons missing`);
       for (const link of await links.all()) {
@@ -46,7 +46,7 @@ try {
         assert(await link.evaluate(el => el.scrollWidth <= el.clientWidth + 1), `${platform} label overflows at ${width}px`);
       }
     }
-    assert.equal(await page.locator('[data-platform="windows"]').count(), 2);
+    assert.equal(await page.locator('[data-platform="windows"]').count(), 1);
     for (const link of await page.locator('.intel-download').all()) assert.equal(await link.getAttribute('href'), 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-x64.dmg');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Page overflow at ' + width);
     await page.locator('#tab-settings').click();
@@ -54,8 +54,8 @@ try {
     assert((await page.locator('#screen-image').getAttribute('src')).includes('settings-screen'));
     await page.locator('#tab-settings').press('Home');
     assert.equal(await page.locator('#tab-home').getAttribute('aria-selected'), 'true');
-    assert.equal(await page.locator('.hero #download-counter').count(), 1);
-    assert.equal(await page.locator('.hero .graph-area').getAttribute('fill'), 'url(#growth-tint)');
+    assert.equal(await page.locator('.milestone #download-counter').count(), 1);
+    assert.equal(await page.locator('.milestone .graph-area').getAttribute('fill'), 'url(#growth-tint)');
     await page.evaluate(() => document.fonts.ready);
     const glyphsFit = await page.locator('.download-counter-digit').evaluateAll(digits => digits.every(digit => {
       const style = getComputedStyle(digit);
@@ -69,8 +69,21 @@ try {
     const graphBox = await page.locator('.growth-figure').boundingBox();
     assert(graphBox.y >= metricBox.y + metricBox.height - 1, 'Graph must sit below full-width counter');
     assert(metricBox.width >= graphBox.width - 1, 'Counter must own the graph width');
+    // Theme switching and gallery navigation remain usable at every viewport.
+    await page.locator('.theme-toggle').click();
+    assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await page.screenshot({ path: `${output}/dark-${width}.png`, fullPage: true });
+    await page.locator('.theme-toggle').click();
+    assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+    for (const link of await page.locator('a[href^="#"]').all()) {
+      const href = await link.getAttribute('href');
+      assert(await page.locator(href).count() > 0, `Missing anchor ${href}`);
+    }
+    const failedImages = await page.locator('img').evaluateAll(images => images.filter(img => img.complete && img.naturalWidth === 0).map(img => img.src));
+    assert.deepEqual(failedImages, [], 'Images must load');
     assert.deepEqual(errors, []);
-    await page.locator('.hero-actions').scrollIntoViewIfNeeded();
+    await page.locator('#top').scrollIntoViewIfNeeded();
     await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
     await page.locator('#download').scrollIntoViewIfNeeded();
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
@@ -88,7 +101,7 @@ try {
   await page.route('https://api.github.com/repos/kaizen-flims/Podium-Air/releases?**', route => route.abort());
   await page.goto(base, { waitUntil: 'networkidle' });
   for (const link of await page.locator('[data-platform="android"]').all()) assert.equal(await link.getAttribute('href'), nextAndroid);
-  assert.equal(await page.locator('[data-platform="windows"]').count(), 2);
+  assert.equal(await page.locator('[data-platform="windows"]').count(), 1);
     for (const link of await page.locator('.intel-download').all()) assert.equal(await link.getAttribute('href'), 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-x64.dmg');
   await context.close();
   const motionContext = await browser.newContext({ viewport: { width: 390, height: 900 } });
@@ -98,8 +111,18 @@ try {
   await motionPage.locator('.growth-figure').scrollIntoViewIfNeeded();
   await motionPage.waitForFunction(() => document.querySelector('.growth-figure').classList.contains('graph-entered'));
   assert.equal(await motionPage.locator('#growth-reveal rect').evaluate(el => getComputedStyle(el).animationName), 'growth-draw');
+  await motionPage.locator('#journey').scrollIntoViewIfNeeded();
+  await motionPage.locator('.story-chapter').first().scrollIntoViewIfNeeded();
+  await motionPage.waitForFunction(() => !document.querySelector('.story-chapter').classList.contains('is-pending'));
   await motionContext.close();
-  console.log('PASS: Platform labels/logos/download URLs, 1440/768/390/320px button bounds, no uncaught errors gallery navigation, hero metrics and Android updates.');
+  const noJS = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  const staticPage = await noJS.newPage();
+  await staticPage.goto(base);
+  assert.equal(await staticPage.locator('.download-link').count(), 3);
+  assert(await staticPage.locator('#download-count').isVisible());
+  assert(await staticPage.locator('#journey-title').isVisible());
+  await noJS.close();
+  console.log('PASS: Platform labels/logos/download URLs, 1440/768/390/320px button bounds, no uncaught errors gallery navigation, milestone metrics and Android updates.');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

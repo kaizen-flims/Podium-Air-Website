@@ -58,7 +58,9 @@
   const screenIndex = document.getElementById('screen-index');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  let swapTimer;
   function selectTab(tab, focus = false) {
+    clearTimeout(swapTimer);
     const next = screens[tab.dataset.screen];
     tabs.forEach(item => {
       const active = item === tab;
@@ -77,7 +79,7 @@
     if (reduced) swap();
     else {
       screen.parentElement.classList.add('is-changing');
-      setTimeout(swap, 160);
+      swapTimer = setTimeout(swap, 160);
     }
   }
   tabs.forEach((tab, index) => {
@@ -132,7 +134,7 @@
       growthFigure.classList.add('graph-entered');
       graphObserver.disconnect();
     }, { threshold: .25 });
-    // Start after the V1 intro, so the line reveal is visible to the visitor.
+    // Retain compatibility with pages that include an optional opening animation.
     const intro = document.querySelector('.intro')?.getAnimations?.().find(animation => animation.animationName === 'intro-away');
     Promise.resolve(intro?.finished).catch(() => {}).then(() => graphObserver.observe(growthFigure));
     growthFigure.classList.add('graph-animated');
@@ -159,51 +161,40 @@
   setInterval(() => { if (document.visibilityState !== 'hidden') refreshHistory(); }, 300000);
 
   document.getElementById('year').textContent = new Date().getFullYear();
+  const themeButton = document.querySelector('.theme-toggle');
+  const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+  const darkNow = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : systemTheme.matches;
+  const labelTheme = () => {
+    themeButton.textContent = darkNow() ? 'Light' : 'Dark';
+    themeButton.setAttribute('aria-label', `Switch to ${darkNow() ? 'light' : 'dark'} theme`);
+    document.querySelector('meta[name="theme-color"]').content = darkNow() ? '#161315' : '#f6f5f3';
+  };
+  themeButton.hidden = false;
+  labelTheme();
+  themeButton.addEventListener('click', () => {
+    document.documentElement.dataset.theme = darkNow() ? 'light' : 'dark';
+    labelTheme();
+  });
+  systemTheme.addEventListener('change', labelTheme);
+
   if ('IntersectionObserver' in window && !reduced) {
-    // Observe once per element. Scroll never runs a JavaScript animation loop;
-    // CSS only animates opacity and transform after an element enters view.
-    const revealGroups = [
-      ['.hero-copy', '.eyebrow, h1, .hero-lead, .hero-actions, .hero-metrics, .hero-metric-note'],
-      ['.statement', '.section-intro, h2, .statement-bottom > p, .feature-lines > div'],
-      ['.showcase-copy', '.section-intro, h2, .showcase-lead, .showcase-tabs'],
-      ['.details', '.section-intro, h2, .detail-stack article'],
-      ['.journey-head', '.section-intro, h2, p'],
-      ['.attempts-copy', '.story-kicker, h3, p'],
-      ['.pivot', '.story-kicker, h3, p:not(.story-kicker), .name-transition'],
-      ['.weeks', '.story-kicker, .weeks-track, h3, p, .text-link'],
-      ['.ecosystem', '.section-intro, h2, .eco-item'],
-      ['.final-cta', ':scope > img, :scope > .eyebrow, :scope > h2, .download-option']
-    ];
-    const revealObserver = new IntersectionObserver(entries => {
+    const observer = new IntersectionObserver(entries => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
+        entry.target.classList.remove('is-pending');
         entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
+        observer.unobserve(entry.target);
       }
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-
-    for (const [rootSelector, itemSelector] of revealGroups) {
-      const root = document.querySelector(rootSelector);
-      if (!root) continue;
-      root.querySelectorAll(itemSelector).forEach((item, index) => {
-        // The hero starts as the intro clears; later groups stagger briefly.
-        const heroWait = rootSelector === '.hero-copy' ? Math.max(0, 2050 - performance.now()) : 0;
-        item.style.setProperty('--reveal-delay', `${Math.round(heroWait + Math.min(index * 70, 350))}ms`);
-        item.classList.add('scroll-reveal');
-        revealObserver.observe(item);
-      });
-    }
-    document.documentElement.classList.add('motion-ready');
-
-    const attemptCells = document.querySelectorAll('.attempt-grid > span');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        attemptCells.forEach((cell, i) => setTimeout(() => cell.classList.add('seen'), i * 55));
-        observer.disconnect();
-      });
-    }, { threshold: .35 });
-    const grid = document.querySelector('.attempt-grid');
-    if (grid) observer.observe(grid);
+    }, { threshold: .06 });
+    document.querySelectorAll('.statement h2, .feature-lines article, .showcase-copy, .details h2, .details-grid article, .journey-head, .story-chapter, .ecosystem h2, .eco-item, .final-cta h2, .download-option').forEach((item, index) => {
+      item.style.setProperty('--reveal-delay', `${(index % 2) * 70}ms`);
+      item.classList.add('scroll-reveal', 'is-pending');
+      observer.observe(item);
+    });
+    // Keyboard navigation must reveal a target immediately, even before intersection.
+    document.addEventListener('focusin', event => {
+      const item = event.target.closest('.scroll-reveal');
+      if (item) { item.classList.remove('is-pending'); observer.unobserve(item); }
+    });
   }
 })();
