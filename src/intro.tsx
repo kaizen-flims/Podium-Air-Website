@@ -22,3 +22,5 @@ if (container && gate?.active) {
     </div>,
   )
 }
+
+import "./hero"

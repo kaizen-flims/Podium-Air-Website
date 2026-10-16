@@ -4,3 +4,5 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @source "../components";
 @source "./intro.tsx";
+
+@source "./hero.tsx";

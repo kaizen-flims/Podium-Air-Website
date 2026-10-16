@@ -7,7 +7,7 @@ for (let attempt = 0; attempt < 12; attempt++) {
     const response = await fetch(origin + '/?renovation-check=' + Date.now(), { signal: AbortSignal.timeout(10000) });
     assert(response.ok);
     const html = await response.text();
-    assert(html.includes('Life sounds'), 'Reboot not deployed yet');
+    assert(html.includes('Less noise.<br>More music.'), 'Reboot not deployed yet');
     for (const id of ['downloads-count', 'download-count', 'growth-graph', 'journey', 'download']) {
       assert(html.includes('id="' + id + '"'), 'Missing ' + id);
     }
