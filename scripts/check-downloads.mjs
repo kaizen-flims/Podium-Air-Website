@@ -77,13 +77,17 @@ try {
     const graphBox = await page.locator('.growth-figure').boundingBox();
     assert(graphBox.y >= metricBox.y + metricBox.height - 1, 'Graph must sit below full-width counter');
     assert(metricBox.width >= graphBox.width - 1, 'Counter must own the graph width');
-    // Theme switching and gallery navigation remain usable at every viewport.
-    await page.locator('.theme-toggle').click();
+    // The homepage starts dark; switching remains usable at every viewport.
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await page.screenshot({ path: `${output}/dark-${width}.png`, fullPage: true });
     await page.locator('.theme-toggle').click();
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+    assert.equal(await page.locator('#hero-announcement a').getAttribute('href'), 'https://github.com/kaizen-flims/Podium-Air/releases/tag/v1.0.2');
+    const releaseBox = await page.locator('#hero-announcement').boundingBox();
+    const downloadBox = await page.locator('#hero-download').boundingBox();
+    assert(releaseBox.y >= downloadBox.y + downloadBox.height, 'Release announcement sits below download');
+    await page.screenshot({ path: `${output}/light-${width}.png`, fullPage: true });
     for (const link of await page.locator('a[href^="#"]').all()) {
       const href = await link.getAttribute('href');
       assert(await page.locator(href).count() > 0, `Missing anchor ${href}`);

@@ -25,3 +25,14 @@ if (header) {
   const resize = new ResizeObserver(() => document.documentElement.style.setProperty('--hero-header-height', `${header.offsetHeight}px`))
   resize.observe(header)
 }
+
+const announcement = document.getElementById("hero-announcement")
+const releaseLink = announcement?.querySelector<HTMLAnchorElement>("a")
+if (announcement && releaseLink) {
+  const href = releaseLink.href
+  createRoot(announcement, { identifierPrefix: "release-" }).render(
+    <LiquidButton asChild size="sm" className="hero-download-button hero-release-pill">
+      <a href={href}><span className="release-version">Android v1.0.2</span><span>See what’s new <span aria-hidden="true">↗</span></span></a>
+    </LiquidButton>,
+  )
+}
