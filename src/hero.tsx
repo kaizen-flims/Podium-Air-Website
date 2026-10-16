@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { createRoot } from "react-dom/client"
 import { WebGLShader } from "@/components/ui/web-gl-shader"
-import { LiquidButton } from "@/components/ui/liquid-glass-button"
+import { LiquidButton, LiquidGlassSurface } from "@/components/ui/liquid-glass-button"
 
 function HeroMotion() {
   const [paused, setPaused] = useState(false)
@@ -24,4 +24,35 @@ const header = document.querySelector<HTMLElement>('.site-header')
 if (header) {
   const resize = new ResizeObserver(() => document.documentElement.style.setProperty('--hero-header-height', `${header.offsetHeight}px`))
   resize.observe(header)
+  const hero = document.querySelector<HTMLElement>(".shader-hero")
+  let queued = false
+  const syncHeaderContrast = () => {
+    queued = false
+    if (hero) header.classList.toggle("over-hero", hero.getBoundingClientRect().bottom > header.getBoundingClientRect().bottom)
+  }
+  window.addEventListener("scroll", () => {
+    if (!queued) { queued = true; requestAnimationFrame(syncHeaderContrast) }
+  }, { passive: true })
+  window.addEventListener("resize", syncHeaderContrast)
+  syncHeaderContrast()
 }
+
+const announcement = document.getElementById("hero-announcement")
+const releaseLink = announcement?.querySelector<HTMLAnchorElement>("a")
+if (announcement && releaseLink) {
+  const href = releaseLink.href
+  createRoot(announcement, { identifierPrefix: "release-" }).render(
+    <LiquidButton asChild size="sm" className="hero-download-button hero-release-pill">
+      <a href={href}><span className="release-version">Android v1.0.2</span><span>See what’s new <span aria-hidden="true">↗</span></span></a>
+    </LiquidButton>,
+  )
+}
+
+// Keep the original anchors and theme button so their native behavior/listeners survive.
+document.querySelectorAll<HTMLElement>(".site-header nav > a, .site-header .theme-toggle").forEach((control, index) => {
+  const optics = document.createElement("span")
+  optics.className = "nav-glass-optics"
+  optics.setAttribute("aria-hidden", "true")
+  control.prepend(optics)
+  createRoot(optics, { identifierPrefix: `nav-${index}-` }).render(<LiquidGlassSurface />)
+})

@@ -53,10 +53,17 @@ export const liquidbuttonVariants = cva(
 export function LiquidButton({ className, variant, size, asChild = false, children, ...props }:
   React.ComponentProps<"button"> & VariantProps<typeof liquidbuttonVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "button"
-  const filterId = `glass-${React.useId().replace(/:/g, '')}`
   return <Comp className={cn(liquidbuttonVariants({ variant, size }), className)} {...props}>
-    <span className="liquid-glass-surface" aria-hidden="true" style={{ backdropFilter: `url("#${filterId}") blur(4px)` }} />
+    <LiquidGlassSurface />
     <Slottable>{children}</Slottable>
+  </Comp>
+}
+
+/** Shared glass optics for buttons and existing navigation controls. */
+export function LiquidGlassSurface() {
+  const filterId = `glass-${React.useId().replace(/:/g, '')}`
+  return <>
+    <span className="liquid-glass-surface" aria-hidden="true" style={{ backdropFilter: `url("#${filterId}") blur(4px)` }} />
     <svg width="0" height="0" aria-hidden="true" focusable="false" className="liquid-filter">
       <defs><filter id={filterId} x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.05 0.05" numOctaves="1" seed="1" result="turbulence" />
@@ -66,5 +73,5 @@ export function LiquidButton({ className, variant, size, asChild = false, childr
         <feComposite in="finalBlur" in2="finalBlur" operator="over" />
       </filter></defs>
     </svg>
-  </Comp>
+  </>
 }
