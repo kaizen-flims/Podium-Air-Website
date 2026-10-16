@@ -22,10 +22,15 @@
   <link rel="preload" href="assets/update-screen.jpg" as="image" fetchpriority="high">
   <link rel="preload" href="assets/barlow-condensed-bold.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="intro/intro.css">
+  <script src="intro-gate.js"></script>
+  <script type="module" src="intro/intro.js"></script>
   <script src="script.js" defer></script>
   <script src="download-counter.js" type="module"></script>
 </head>
 <body>
+  <div id="intro-root" class="intro" aria-hidden="true"><p class="intro-wordmark"><span>Podium</span> <span class="intro-air">Air</span></p></div>
+  <div id="site-content">
   <svg class="platform-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <defs>
       <symbol id="platform-android" viewBox="0 0 24 24">
@@ -117,5 +122,6 @@
 
 </main>
   <footer class="footer section-pad"><div class="footer-top"><a href="#top" class="footer-brand">PODIUM <em>AIR</em><span>↗</span></a><p>Made with love by Prem.</p></div><div class="footer-bottom"><span>© <span id="year">2026</span> Podium Air</span><div><a href="https://github.com/kaizen-flims/Podium-Air" target="_blank" rel="noopener noreferrer">Source &amp; credits</a><a href="https://github.com/kaizen-flims/Podium-Air/releases" target="_blank" rel="noopener noreferrer">Changelog</a><a href="privacy.html">Privacy</a></div></div></footer>
+  </div>
 </body>
 </html>
