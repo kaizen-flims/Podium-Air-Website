@@ -24,6 +24,17 @@ const header = document.querySelector<HTMLElement>('.site-header')
 if (header) {
   const resize = new ResizeObserver(() => document.documentElement.style.setProperty('--hero-header-height', `${header.offsetHeight}px`))
   resize.observe(header)
+  const hero = document.querySelector<HTMLElement>(".shader-hero")
+  let queued = false
+  const syncHeaderContrast = () => {
+    queued = false
+    if (hero) header.classList.toggle("over-hero", hero.getBoundingClientRect().bottom > header.getBoundingClientRect().bottom)
+  }
+  window.addEventListener("scroll", () => {
+    if (!queued) { queued = true; requestAnimationFrame(syncHeaderContrast) }
+  }, { passive: true })
+  window.addEventListener("resize", syncHeaderContrast)
+  syncHeaderContrast()
 }
 
 const announcement = document.getElementById("hero-announcement")

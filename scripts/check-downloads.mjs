@@ -81,6 +81,9 @@ try {
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await page.screenshot({ path: `${output}/dark-${width}.png`, fullPage: true });
+    assert.equal(await page.locator('.site-header').evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', 'Sticky dock must stay transparent');
+    await page.locator('#downloads-count').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `${output}/dock-scrolled-${width}.png` });
     await page.locator('.theme-toggle').click();
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
     assert.equal(await page.locator('#hero-announcement a').getAttribute('href'), 'https://github.com/kaizen-flims/Podium-Air/releases/tag/v1.0.2');
@@ -96,6 +99,7 @@ try {
     assert.deepEqual(failedImages, [], 'Images must load');
     assert.deepEqual(errors, []);
     await page.locator('#top').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `${output}/dock-top-${width}.png` });
     await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
     await page.locator('#download').scrollIntoViewIfNeeded();
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
