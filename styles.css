@@ -92,3 +92,9 @@ html.intro-active #intro-root {
   .hero-motion-toggle { bottom: 4px; right: 50%; transform: translateX(50%); white-space: nowrap; }
 }
 @media(prefers-reduced-motion:reduce) { .hero-motion-toggle { display: none; } }
+
+/* Blend the hero into the active page theme within the existing section spacing. */
+.shader-hero + .milestone {
+  border-top-color: #050405;
+  background: linear-gradient(to bottom, #050405, var(--paper)) top / 100% clamp(60px, 8vw, 90px) no-repeat, var(--paper);
+}
