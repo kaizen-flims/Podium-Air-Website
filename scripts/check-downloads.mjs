@@ -23,7 +23,7 @@ await mkdir(output, { recursive: true });
 const base = `http://127.0.0.1:${server.address().port}`;
 let browser;
 try {
-  browser = await chromium.launch();
+  browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   for (const width of [1440, 768, 390, 320]) {
     const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
@@ -32,6 +32,8 @@ try {
     await page.route('https://api.github.com/**', route => route.abort());
     await page.goto(base, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
+    assert.equal(await page.locator('#intro-root canvas').count(), 0, 'Reduced motion must skip the shader');
+    assert(await page.locator('#hero-title').isVisible());
     for (const [platform, expected, minimum] of [['android', androidUrl, 1], ['windows', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-windows-x64-setup.exe', 1], ['macos', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-arm64.dmg', 1]]) {
       const links = page.locator(`.download-link[data-platform="${platform}"]`);
       assert(await links.count() >= minimum, `${platform} buttons missing`);
@@ -104,10 +106,24 @@ try {
   assert.equal(await page.locator('[data-platform="windows"]').count(), 1);
     for (const link of await page.locator('.intel-download').all()) assert.equal(await link.getAttribute('href'), 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-x64.dmg');
   await context.close();
-  const motionContext = await browser.newContext({ viewport: { width: 390, height: 900 } });
+  const motionContext = await browser.newContext({ viewport: { width: 390, height: 900 }, recordVideo: { dir: output, size: { width: 390, height: 900 } } });
   const motionPage = await motionContext.newPage();
   await motionPage.route('https://api.github.com/**', route => route.abort());
   await motionPage.goto(base, { waitUntil: 'networkidle' });
+  await motionPage.waitForSelector('#intro-root canvas', { state: 'attached' });
+  assert.equal((await motionPage.locator('#intro-root').textContent()).trim(), 'Podium Air');
+  assert.equal(await motionPage.locator('#intro-root img, #intro-root button, #intro-root a').count(), 0);
+  assert.equal(await motionPage.locator('.intro-air').evaluate(el => getComputedStyle(el).color), 'rgb(241, 40, 70)');
+  await motionPage.screenshot({ path: `${output}/intro-390.png` });
+  const firstFrame = await motionPage.locator('#intro-root canvas').screenshot();
+  await motionPage.waitForTimeout(180);
+  const secondFrame = await motionPage.locator('#intro-root canvas').screenshot();
+  assert(!firstFrame.equals(secondFrame), 'Shader must animate, not display a still frame');
+  await motionPage.waitForSelector('#intro-root', { state: 'detached', timeout: 6000 });
+  assert(await motionPage.locator('#hero-title').isVisible());
+  await motionPage.keyboard.press('Tab');
+  assert.equal(await motionPage.locator(':focus').innerText(), 'Skip to content');
+  await motionPage.screenshot({ path: `${output}/intro-finished-390.png` });
   await motionPage.locator('.growth-figure').scrollIntoViewIfNeeded();
   await motionPage.waitForFunction(() => document.querySelector('.growth-figure').classList.contains('graph-entered'));
   assert.equal(await motionPage.locator('#growth-reveal rect').evaluate(el => getComputedStyle(el).animationName), 'growth-draw');
@@ -115,6 +131,25 @@ try {
   await motionPage.locator('.story-chapter').first().scrollIntoViewIfNeeded();
   await motionPage.waitForFunction(() => !document.querySelector('.story-chapter').classList.contains('is-pending'));
   await motionContext.close();
+  await motionPage.video().saveAs(`${output}/intro-playback-390.webm`);
+  // The intro cannot trap visitors when GPU support or the bundle is unavailable.
+  for (const failure of ['webgl', 'bundle', 'anchor']) {
+    const fallback = await browser.newContext();
+    const fallbackPage = await fallback.newPage();
+    await fallbackPage.route('https://api.github.com/**', route => route.abort());
+    if (failure === 'webgl') await fallbackPage.addInitScript(() => {
+      const original = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function(type, ...args) {
+        return type.startsWith('webgl') ? null : original.call(this, type, ...args);
+      };
+    });
+    if (failure === 'bundle') await fallbackPage.route('**/intro/intro.js', route => route.abort());
+    await fallbackPage.goto(base + (failure === 'anchor' ? '/#download' : '/'));
+    await fallbackPage.waitForFunction(() => !document.documentElement.classList.contains('intro-active'), null, { timeout: 6000 });
+    assert(await fallbackPage.locator('#hero-title').isVisible(), failure + ' must reveal website');
+    assert.equal(await fallbackPage.locator('#intro-root canvas').count(), 0);
+    await fallback.close();
+  }
   const noJS = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const staticPage = await noJS.newPage();
   await staticPage.goto(base);

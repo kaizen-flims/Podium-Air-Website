@@ -2,7 +2,7 @@ name: Verify platform downloads
 on:
   push:
     branches: [main]
-    paths: [index.html, styles.css, script.js, scripts/check-downloads.mjs, scripts/check-live-downloads.mjs, .github/workflows/platform-downloads.yml]
+    paths: [index.html, styles.css, script.js, intro-gate.js, "components/**", "src/**", "lib/**", package.json, package-lock.json, tsconfig.json, vite.config.ts, "scripts/**", .github/workflows/platform-downloads.yml]
   pull_request:
 permissions:
   contents: read
@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm ci
       - name: Check scripts and build static site
         env:
           SITE_URL: https://podium-air-website.pages.dev

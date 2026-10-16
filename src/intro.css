@@ -1,0 +1,6 @@
+/* Utilities only: keep Tailwind's reset out of the existing static website. */
+@layer theme, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "../components";
+@source "./intro.tsx";
