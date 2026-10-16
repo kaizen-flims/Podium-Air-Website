@@ -34,6 +34,12 @@ try {
     await page.waitForTimeout(400);
     assert.equal(await page.locator('#intro-root canvas').count(), 0, 'Reduced motion must skip the shader');
     assert(await page.locator('#hero-title').isVisible());
+    assert.equal(await page.locator('#hero-download a').getAttribute('href'), '#download');
+    assert.equal(await page.locator('#hero-download a').count(), 1);
+    assert.equal(await page.locator('#hero-motion canvas').getAttribute('data-animating'), 'false');
+    assert.equal(await page.locator('#hero-motion canvas').evaluate(el => getComputedStyle(el).position), 'absolute');
+    const heroBox = await page.locator('.shader-hero').boundingBox();
+    assert(heroBox.height >= 960 - (await page.locator('.site-header').boundingBox()).height - 2, 'Hero must fill the first screen');
     for (const [platform, expected, minimum] of [['android', androidUrl, 1], ['windows', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-windows-x64-setup.exe', 1], ['macos', 'https://github.com/kaizen-flims/Podium-Air/releases/download/desktop-v1.0.1-beta1/Podium-Air-1.0.1-beta1-macos-arm64.dmg', 1]]) {
       const links = page.locator(`.download-link[data-platform="${platform}"]`);
       assert(await links.count() >= minimum, `${platform} buttons missing`);
@@ -124,6 +130,16 @@ try {
   await motionPage.keyboard.press('Tab');
   assert.equal(await motionPage.locator(':focus').innerText(), 'Skip to content');
   await motionPage.screenshot({ path: `${output}/intro-finished-390.png` });
+  const wave = motionPage.locator('#hero-motion canvas');
+  await motionPage.waitForFunction(() => document.querySelector('#hero-motion canvas')?.dataset.animating === 'true');
+  await motionPage.screenshot({ path: `${output}/wave-hero-390.png` });
+  await motionPage.getByRole('button', { name: 'Pause animation' }).click();
+  assert.equal(await wave.getAttribute('data-animating'), 'false');
+  await motionPage.getByRole('button', { name: 'Play animation' }).click();
+  assert.equal(await wave.getAttribute('data-animating'), 'true');
+  await motionPage.locator('#hero-download a').click();
+  await motionPage.waitForFunction(() => location.hash === '#download');
+  await motionPage.waitForFunction(() => document.querySelector('#hero-motion canvas')?.dataset.animating === 'false');
   await motionPage.locator('.growth-figure').scrollIntoViewIfNeeded();
   await motionPage.waitForFunction(() => document.querySelector('.growth-figure').classList.contains('graph-entered'));
   assert.equal(await motionPage.locator('#growth-reveal rect').evaluate(el => getComputedStyle(el).animationName), 'growth-draw');

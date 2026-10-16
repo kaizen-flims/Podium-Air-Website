@@ -19,7 +19,6 @@
   <title>Podium Air — Music goes with you</title>
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/podium-air-icon.webp">
-  <link rel="preload" href="assets/update-screen.jpg" as="image" fetchpriority="high">
   <link rel="preload" href="assets/barlow-condensed-bold.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="intro/intro.css">
@@ -50,9 +49,19 @@
 <nav aria-label="Main navigation"><a href="#experience">Experience</a><a href="#journey">The journey</a><a href="#download" class="nav-download">Downloads <span aria-hidden="true">↗</span></a></nav>
 <button class="theme-toggle" type="button" aria-label="Switch colour theme" hidden>Dark</button>
 </header><main id="main">
-<section class="hero section-pad" aria-labelledby="hero-title">
-<div class="hero-copy"><p class="eyebrow">FOR THE LOVE OF LISTENING</p><h1 id="hero-title">Life sounds<br>better here.</h1><p class="hero-lead">Stream, save, and rediscover your music. Podium Air goes wherever you do.</p><div class="hero-actions"><a href="#download" class="button button-red">Get Podium Air <span aria-hidden="true">↗</span></a><a href="#experience" class="text-link">Meet your music app</a></div></div>
-<div class="hero-art"><div class="record-stage" aria-hidden="true"><img src="assets/red-record.webp" alt="" width="1536" height="1024" fetchpriority="high"></div><figure class="phone hero-phone"><img src="assets/update-screen.jpg" alt="Podium Air Listen Now with music recommendations and its in-app update prompt" width="691" height="1536" fetchpriority="high"></figure></div>
+<section class="hero shader-hero" aria-labelledby="hero-title">
+  <div id="hero-motion"></div>
+  <div class="hero-wave-shade" aria-hidden="true"></div>
+  <div class="wave-hero-frame">
+    <div class="wave-hero-copy">
+      <p class="eyebrow">PODIUM AIR · FOR THE LOVE OF LISTENING</p>
+      <h1 id="hero-title">Your music.<br>In full colour.</h1>
+      <p class="wave-hero-lead">Stream, save, and rediscover your music.<br>Keep the soundtrack. Lose the interruptions.</p>
+      <p class="hero-platforms">ANDROID <span>·</span> WINDOWS <span>·</span> macOS</p>
+      <div id="hero-download"><a class="liquid-button hero-download-button" href="#download">Download Podium Air <span aria-hidden="true">↓</span></a></div>
+    </div>
+  </div>
+  <a class="hero-scroll-cue" href="#experience">Meet your music app <span aria-hidden="true">↓</span></a>
 </section>
 <section class="milestone section-pad" aria-labelledby="milestone-title"><div class="milestone-heading"><h2 id="milestone-title">A little app.<br>A growing soundtrack.</h2><p>Every download is another reason to keep building.</p></div>        <div class="hero-metrics" id="downloads-count">
           <div class="download-counter" id="download-counter" data-total="522" data-verified-at="2026-10-12T19:52:08.280Z">
