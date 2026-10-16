@@ -165,7 +165,7 @@
   const systemTheme = matchMedia('(prefers-color-scheme: dark)');
   const darkNow = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : systemTheme.matches;
   const labelTheme = () => {
-    themeButton.textContent = darkNow() ? 'Light' : 'Dark';
+    themeButton.querySelector('.theme-label').textContent = darkNow() ? 'Light' : 'Dark';
     themeButton.setAttribute('aria-label', `Switch to ${darkNow() ? 'light' : 'dark'} theme`);
     document.querySelector('meta[name="theme-color"]').content = darkNow() ? '#161315' : '#f6f5f3';
   };

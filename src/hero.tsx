@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { createRoot } from "react-dom/client"
 import { WebGLShader } from "@/components/ui/web-gl-shader"
-import { LiquidButton } from "@/components/ui/liquid-glass-button"
+import { LiquidButton, LiquidGlassSurface } from "@/components/ui/liquid-glass-button"
 
 function HeroMotion() {
   const [paused, setPaused] = useState(false)
@@ -36,3 +36,12 @@ if (announcement && releaseLink) {
     </LiquidButton>,
   )
 }
+
+// Keep the original anchors and theme button so their native behavior/listeners survive.
+document.querySelectorAll<HTMLElement>(".site-header nav > a, .site-header .theme-toggle").forEach((control, index) => {
+  const optics = document.createElement("span")
+  optics.className = "nav-glass-optics"
+  optics.setAttribute("aria-hidden", "true")
+  control.prepend(optics)
+  createRoot(optics, { identifierPrefix: `nav-${index}-` }).render(<LiquidGlassSurface />)
+})
