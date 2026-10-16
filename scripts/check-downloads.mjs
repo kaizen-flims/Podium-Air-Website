@@ -111,7 +111,7 @@ try {
   await motionPage.route('https://api.github.com/**', route => route.abort());
   await motionPage.goto(base, { waitUntil: 'networkidle' });
   await motionPage.waitForSelector('#intro-root canvas', { state: 'attached' });
-  assert.equal(await motionPage.locator('#intro-root').innerText(), 'Podium Air');
+  assert.equal((await motionPage.locator('#intro-root').textContent()).trim(), 'Podium Air');
   assert.equal(await motionPage.locator('#intro-root img, #intro-root button, #intro-root a').count(), 0);
   assert.equal(await motionPage.locator('.intro-air').evaluate(el => getComputedStyle(el).color), 'rgb(241, 40, 70)');
   await motionPage.screenshot({ path: `${output}/intro-390.png` });
@@ -145,7 +145,7 @@ try {
     });
     if (failure === 'bundle') await fallbackPage.route('**/intro/intro.js', route => route.abort());
     await fallbackPage.goto(base + (failure === 'anchor' ? '/#download' : '/'));
-    await fallbackPage.waitForFunction(() => !document.documentElement.classList.contains('intro-active'), { timeout: 6000 });
+    await fallbackPage.waitForFunction(() => !document.documentElement.classList.contains('intro-active'), null, { timeout: 6000 });
     assert(await fallbackPage.locator('#hero-title').isVisible(), failure + ' must reveal website');
     assert.equal(await fallbackPage.locator('#intro-root canvas').count(), 0);
     await fallback.close();
