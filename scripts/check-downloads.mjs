@@ -249,7 +249,7 @@ try {
   await motionPage.getByRole('button', { name: 'Play vinyl animation' }).click();
   await motionPage.screenshot({ path: `${output}/vinyl-rotation-390.png` });
   await motionPage.emulateMedia({ reducedMotion: 'reduce' });
-  await motionPage.waitForFunction(() => getComputedStyle(document.querySelector('.vinyl-art')).animationPlayState === 'paused');
+  await motionPage.waitForFunction(() => getComputedStyle(document.querySelector('.vinyl-art')).animationName === 'none');
   await motionContext.close();
   await motionPage.video().saveAs(`${output}/intro-playback-390.webm`);
   // The intro cannot trap visitors when GPU support or the bundle is unavailable.
