@@ -27,7 +27,7 @@ jobs:
         run: npm run check && npm test && node scripts/check-protected.mjs && npm run build
       - name: Install pinned browser verification tools
         run: |
-          npm install --no-save --package-lock=false playwright@1.62.1
+          npm install --no-save --package-lock=false playwright@1.62.1 pngjs@7.0.0
           npx playwright install --with-deps chromium
       - name: Verify platform downloads and responsive layouts
         shell: bash

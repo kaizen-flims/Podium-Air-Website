@@ -131,7 +131,7 @@
 .v2 .lyrics-feature { grid-column: 1; min-height: 680px; padding: 40px; background: var(--v-surface); }
 .v2 .lyrics-feature .eyebrow { margin: 0 0 24px; font-size: 10px; }
 .v2 .lyrics-feature h3 { font-size: 32px; }
-.v2 .type-art { font: 400 clamp(110px, 13vw, 200px)/.82 'Six Caps', sans-serif; letter-spacing: 0; padding-top: 48px; color: var(--v-red); }
+.v2 .type-art { font: 400 clamp(110px, 13vw, 200px)/1.02 'Six Caps', sans-serif; letter-spacing: 0; padding-top: 48px; color: var(--v-red); }
 .utility-stack { display: flex; flex-direction: column; }
 .v2 .utility-stack article { padding: 28px 0 32px; border-top: 1px solid var(--v-line); background: none; display: block; }
 .v2 .utility-stack article:last-child { border-bottom: 1px solid var(--v-line); }

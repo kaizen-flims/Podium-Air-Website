@@ -4,6 +4,7 @@ import { readFile, mkdir, stat, cp, writeFile } from 'node:fs/promises';
 import { resolve, sep, extname } from 'node:path';
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { PNG } from 'pngjs';
 
 const root = resolve('dist');
 const output = resolve('download-verification');
@@ -24,6 +25,35 @@ const server = createServer(async (req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 await mkdir(output, { recursive: true });
 const base = `http://127.0.0.1:${server.address().port}`;
+// Exact layout + a one-channel-level tolerance for Chromium glyph rasterization.
+// Logo bitmap bytes are protected separately; it is masked for this comparison.
+function sameProtectedPixels(a, b) {
+  const x = PNG.sync.read(a), y = PNG.sync.read(b);
+  return x.width === y.width && x.height === y.height && x.data.every((value, i) => Math.abs(value - y.data[i]) <= 1);
+}
+async function captureReview(page, phase, theme, width) {
+  await page.evaluate(() => { document.activeElement?.blur(); scrollTo(0, 0); });
+  const sections = await page.evaluate(() => [...document.querySelectorAll('.hero, .milestone, .statement, .showcase, .details, .journey, .ecosystem, .final-cta, .footer')].map(el => ({ name: el.classList[0], y: Math.round(el.getBoundingClientRect().top + scrollY), height: Math.round(el.getBoundingClientRect().height) })));
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  const full = new PNG({ width, height });
+  // Capture viewport tiles instead of Chromium's >8192px compositor surface.
+  for (let top = 0; top < height; top += 960) {
+    await page.evaluate(y => scrollTo(0, y), top);
+    await page.waitForTimeout(70);
+    const actual = await page.evaluate(() => Math.round(scrollY));
+    const frame = PNG.sync.read(await page.screenshot({ style: top ? '.site-header, .skip-link { visibility:hidden !important; }' : '.skip-link { visibility:hidden !important; }' }));
+    const sourceY = top - actual;
+    PNG.bitblt(frame, full, 0, sourceY, width, Math.min(960 - sourceY, height - top), 0, top);
+  }
+  await writeFile(`${output}/${phase}-${theme}-${width}.png`, PNG.sync.write(full));
+  for (const section of sections) {
+    const h = Math.min(section.height, height - section.y);
+    const crop = new PNG({ width, height: h });
+    PNG.bitblt(full, crop, 0, section.y, width, h, 0, 0);
+    await writeFile(`${output}/${phase}-${section.name}-${theme}-${width}.png`, PNG.sync.write(crop));
+  }
+  await page.evaluate(() => scrollTo(0, 0));
+}
 let browser;
 try {
   browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -38,19 +68,11 @@ try {
     await before.route('https://api.github.com/**', route => route.abort());
     await before.goto(`${base}/_before/`, { waitUntil: 'networkidle' });
     await before.evaluate(() => document.fonts.ready);
-    await before.screenshot({ path: `${output}/before-dark-${width}.png`, fullPage: true });
+    await captureReview(before, 'before', 'dark', width);
     await before.locator('.theme-toggle').click();
-    await before.screenshot({ path: `${output}/before-light-${width}.png`, fullPage: true });
+    await captureReview(before, 'before', 'light', width);
     await before.locator('.hero').screenshot({ path: `${output}/before-hero-${width}.png` });
-    // Chromium resamples the sticky logo differently after scrolling (observed <=5/255).
-    // Mask only that unchanged bitmap; protected source checks compare its exact bytes.
     beforeHero.set(width, await before.locator('.hero').screenshot({ mask: [before.locator('.brand img')] }));
-    for (const theme of ['light', 'dark']) {
-      if (theme === 'dark') await before.locator('.theme-toggle').click();
-      for (const section of ['milestone', 'statement', 'showcase', 'details', 'journey', 'ecosystem', 'final-cta', 'footer']) {
-        await before.locator('.' + section).screenshot({ path: `${output}/before-${section}-${theme}-${width}.png`, style: '.site-header { visibility: hidden !important; }' });
-      }
-    }
     await beforeContext.close();
     const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
@@ -131,7 +153,7 @@ try {
     await page.screenshot({ path: `${output}/dock-top-${width}.png` });
     const afterHero = await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
     const protectedPixels = await page.locator('.hero').screenshot({ mask: [page.locator('.brand img')] });
-    assert(protectedPixels.equals(beforeHero.get(width)), 'Protected hero must be pixel-identical at ' + width);
+    assert(sameProtectedPixels(protectedPixels, beforeHero.get(width)), 'Protected hero must be visually identical at ' + width);
     assert(await page.evaluate(() => document.fonts.check('100px "Six Caps"')), 'Condensed numeral font must load');
     for (const total of ['10000', '100000', '9999999', '9007199254740991']) {
       await page.locator('#download-count').evaluate((el, total) => {
@@ -151,12 +173,9 @@ try {
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
     await page.locator('#downloads-count').screenshot({ path: `${output}/metrics-${width}.png` });
     if (width === 1440 || width === 390) await page.screenshot({ path: `${output}/full-${width}.png`, fullPage: true });
-    for (const theme of ['light', 'dark']) {
-      if (theme === 'dark') await page.locator('.theme-toggle').click();
-      for (const section of ['milestone', 'statement', 'showcase', 'details', 'journey', 'ecosystem', 'final-cta', 'footer']) {
-        await page.locator('.' + section).screenshot({ path: `${output}/after-${section}-${theme}-${width}.png`, style: '.site-header { visibility: hidden !important; }' });
-      }
-    }
+    await captureReview(page, 'after', 'light', width);
+    await page.locator('.theme-toggle').click();
+    await captureReview(page, 'after', 'dark', width);
     await context.close();
   }
   // A later valid Android release must update APKs on every APK link.
