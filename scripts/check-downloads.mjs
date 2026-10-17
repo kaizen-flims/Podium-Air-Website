@@ -62,6 +62,13 @@ try {
   await mkdir(`${root}/_before`, { recursive: true });
   for (const name of ['assets', 'intro', 'download-count.json', 'download-history.json', 'download-counter.js', 'intro-gate.js']) await cp(`${root}/${name}`, `${root}/_before/${name}`, { recursive: true });
   for (const name of ['index.html', 'styles.css', 'script.js']) await writeFile(`${root}/_before/${name}`, execFileSync('git', ['show', `${baseline}:${name}`]));
+  // Apply the same verified build snapshot to the historical source, just as its
+  // production build did. This makes before/after counts comparable without mock data.
+  const snapshot = JSON.parse(await readFile(`${root}/download-count.json`, 'utf8'));
+  const baselineHTML = (await readFile(`${root}/_before/index.html`, 'utf8'))
+    .replace(/data-total="\d+" data-verified-at="[^"]+"/, `data-total="${snapshot.total}" data-verified-at="${snapshot.verifiedAt}"`)
+    .replace(/(id="download-count" aria-hidden="true">)\d+/, `$1${snapshot.total}`);
+  await writeFile(`${root}/_before/index.html`, baselineHTML);
   for (const width of [1440, 768, 390, 320]) {
     const beforeContext = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'reduce' });
     const before = await beforeContext.newPage();
