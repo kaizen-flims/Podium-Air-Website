@@ -216,6 +216,9 @@ try {
   await motionPage.keyboard.press('Tab');
   assert.equal(await motionPage.locator(':focus').innerText(), 'Skip to content');
   await motionPage.screenshot({ path: `${output}/intro-finished-390.png` });
+  assert.equal(await motionPage.locator('.v2 .is-pending').count(), 0, 'Below-hero content must not wait for a reveal');
+  assert(await motionPage.locator('.statement h2, .feature-lines article, .showcase-copy, .details-grid article, .journey-head, .story-chapter, .download-option').evaluateAll(nodes => nodes.every(el => getComputedStyle(el).opacity === '1')), 'Content must already be visible before scrolling');
+  assert(await motionPage.locator('.v2 img').evaluateAll(images => images.every(img => img.loading === 'eager')), 'Below-hero images must start loading before scroll');
   const wave = motionPage.locator('#hero-motion canvas');
   await motionPage.waitForFunction(() => document.querySelector('#hero-motion canvas')?.dataset.animating === 'true');
   await motionPage.screenshot({ path: `${output}/wave-hero-390.png` });

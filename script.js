@@ -177,24 +177,5 @@
   });
   systemTheme.addEventListener('change', labelTheme);
 
-  if ('IntersectionObserver' in window && !reduced) {
-    const observer = new IntersectionObserver(entries => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.classList.remove('is-pending');
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    }, { threshold: .06 });
-    document.querySelectorAll('.statement h2, .feature-lines article, .showcase-copy, .details h2, .details-grid article, .journey-head, .story-chapter, .ecosystem h2, .eco-item, .final-cta h2, .download-option').forEach((item, index) => {
-      item.style.setProperty('--reveal-delay', `${(index % 2) * 70}ms`);
-      item.classList.add('scroll-reveal', 'is-pending');
-      observer.observe(item);
-    });
-    // Keyboard navigation must reveal a target immediately, even before intersection.
-    document.addEventListener('focusin', event => {
-      const item = event.target.closest('.scroll-reveal');
-      if (item) { item.classList.remove('is-pending'); observer.unobserve(item); }
-    });
-  }
+  // Lower-page content is immediately visible. Do not gate reading on scroll reveals.
 })();
