@@ -93,7 +93,7 @@
     });
   });
 
-  // Compare real observations only. A dashed connector is not a daily series.
+  // Compare real observations only. A connector compares snapshots; it is not a daily series.
   const counter = document.getElementById('download-counter');
   let history = [];
   let current = { total: Number(counter.dataset.total), verifiedAt: counter.dataset.verifiedAt };
@@ -124,7 +124,7 @@
       const label = document.createElementNS(ns, 'text'); label.setAttribute('x', point.x); label.setAttribute('y', 266); label.setAttribute('class', 'graph-label'); label.setAttribute('text-anchor', i ? 'end' : 'start'); label.textContent = dateLabel(point.verifiedAt); graph.append(label);
     }
     document.getElementById('graph-range').textContent = `${dateLabel(first.verifiedAt)} to ${dateLabel(last.verifiedAt)}, ${new Date(last.verifiedAt).getUTCFullYear()}`;
-    document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Dashed connectors compare observations; intervening daily data is unavailable.';
+    document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Lines connect verified snapshots only; intervening daily data is unavailable.';
     document.getElementById('graph-note').textContent = `${points.length} verified snapshots; daily history unavailable.`;
   }
   const growthFigure = document.querySelector('.growth-figure');
