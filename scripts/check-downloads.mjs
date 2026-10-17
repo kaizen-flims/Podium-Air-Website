@@ -235,6 +235,21 @@ try {
   await motionPage.locator('#journey').scrollIntoViewIfNeeded();
   await motionPage.locator('.story-chapter').first().scrollIntoViewIfNeeded();
   await motionPage.waitForFunction(() => !document.querySelector('.story-chapter').classList.contains('is-pending'));
+  await motionPage.locator('.mix-feature').scrollIntoViewIfNeeded();
+  await motionPage.waitForFunction(() => getComputedStyle(document.querySelector('.vinyl-art')).animationPlayState === 'running');
+  const disc = motionPage.locator('.vinyl-art');
+  assert(await disc.evaluate(img => img.complete && img.naturalWidth > 0), 'Transparent disc must load');
+  const angleBefore = await disc.evaluate(el => getComputedStyle(el).transform);
+  await motionPage.waitForTimeout(300);
+  assert.notEqual(await disc.evaluate(el => getComputedStyle(el).transform), angleBefore, 'Actual disc image must rotate');
+  await motionPage.getByRole('button', { name: 'Pause vinyl animation' }).click();
+  const frozen = await disc.evaluate(el => getComputedStyle(el).transform);
+  await motionPage.waitForTimeout(120);
+  assert.equal(await disc.evaluate(el => getComputedStyle(el).transform), frozen, 'Vinyl pause must freeze the disc');
+  await motionPage.getByRole('button', { name: 'Play vinyl animation' }).click();
+  await motionPage.screenshot({ path: `${output}/vinyl-rotation-390.png` });
+  await motionPage.emulateMedia({ reducedMotion: 'reduce' });
+  await motionPage.waitForFunction(() => getComputedStyle(document.querySelector('.vinyl-art')).animationName === 'none');
   await motionContext.close();
   await motionPage.video().saveAs(`${output}/intro-playback-390.webm`);
   // The intro cannot trap visitors when GPU support or the bundle is unavailable.
