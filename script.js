@@ -93,7 +93,7 @@
     });
   });
 
-  // Compare real observations only. A dashed connector is not a daily series.
+  // Compare real observations only. A connector compares snapshots; it is not a daily series.
   const counter = document.getElementById('download-counter');
   let history = [];
   let current = { total: Number(counter.dataset.total), verifiedAt: counter.dataset.verifiedAt };
@@ -124,7 +124,7 @@
       const label = document.createElementNS(ns, 'text'); label.setAttribute('x', point.x); label.setAttribute('y', 266); label.setAttribute('class', 'graph-label'); label.setAttribute('text-anchor', i ? 'end' : 'start'); label.textContent = dateLabel(point.verifiedAt); graph.append(label);
     }
     document.getElementById('graph-range').textContent = `${dateLabel(first.verifiedAt)} to ${dateLabel(last.verifiedAt)}, ${new Date(last.verifiedAt).getUTCFullYear()}`;
-    document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Dashed connectors compare observations; intervening daily data is unavailable.';
+    document.getElementById('graph-desc').textContent = points.map(point => `${point.total} APK downloads on ${dateLabel(point.verifiedAt)}`).join('; ') + '. Lines connect verified snapshots only; intervening daily data is unavailable.';
     document.getElementById('graph-note').textContent = `${points.length} verified snapshots; daily history unavailable.`;
   }
   const growthFigure = document.querySelector('.growth-figure');
@@ -177,24 +177,42 @@
   });
   systemTheme.addEventListener('change', labelTheme);
 
-  if ('IntersectionObserver' in window && !reduced) {
-    const observer = new IntersectionObserver(entries => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.classList.remove('is-pending');
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    }, { threshold: .06 });
-    document.querySelectorAll('.statement h2, .feature-lines article, .showcase-copy, .details h2, .details-grid article, .journey-head, .story-chapter, .ecosystem h2, .eco-item, .final-cta h2, .download-option').forEach((item, index) => {
-      item.style.setProperty('--reveal-delay', `${(index % 2) * 70}ms`);
-      item.classList.add('scroll-reveal', 'is-pending');
-      observer.observe(item);
-    });
-    // Keyboard navigation must reveal a target immediately, even before intersection.
-    document.addEventListener('focusin', event => {
-      const item = event.target.closest('.scroll-reveal');
-      if (item) { item.classList.remove('is-pending'); observer.unobserve(item); }
-    });
+  // Rotate groove reflections around the photographed spindle, not the rectangular artwork.
+  const vinyl = document.querySelector('.mix-feature');
+  if (vinyl) {
+    const art = vinyl.querySelector('.vinyl-art');
+    const motion = document.createElement('span');
+    motion.className = 'vinyl-motion';
+    motion.setAttribute('aria-hidden', 'true');
+    vinyl.append(motion);
+    const toggle = document.createElement('button');
+    toggle.className = 'vinyl-toggle';
+    toggle.type = 'button';
+    vinyl.append(toggle);
+    const preference = matchMedia('(prefers-reduced-motion: reduce)');
+    let paused = preference.matches;
+    let visible = false;
+    const update = () => {
+      motion.style.animationPlayState = !paused && visible && !document.hidden ? 'running' : 'paused';
+      toggle.textContent = paused ? 'Play vinyl' : 'Pause vinyl';
+      toggle.setAttribute('aria-label', paused ? 'Play vinyl animation' : 'Pause vinyl animation');
+    };
+    toggle.addEventListener('click', () => { paused = !paused; update(); });
+    preference.addEventListener('change', () => { paused = preference.matches; update(); });
+    document.addEventListener('visibilitychange', update);
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); }).observe(vinyl);
+    const resize = () => {
+      const w = art.clientWidth, h = art.clientHeight;
+      const scale = Math.max(w / 1536, h / 1024);
+      const position = parseFloat(getComputedStyle(art).objectPosition) / 100;
+      motion.style.width = motion.style.height = `${1760 * scale}px`;
+      motion.style.left = `${(w - 1536 * scale) * position + 1536 * scale - 880 * scale}px`;
+      motion.style.top = `${(h - 1024 * scale) / 2 + 455 * scale - 880 * scale}px`;
+    };
+    new ResizeObserver(resize).observe(vinyl);
+    resize();
+    update();
   }
+
+  // Lower-page content is immediately visible. Do not gate reading on scroll reveals.
 })();

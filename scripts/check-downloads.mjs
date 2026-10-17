@@ -1,17 +1,21 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { readFile, mkdir, stat } from 'node:fs/promises';
+import { readFile, mkdir, stat, cp, writeFile } from 'node:fs/promises';
 import { resolve, sep, extname } from 'node:path';
 import { chromium } from 'playwright';
+import { execFileSync } from 'node:child_process';
+import { PNG } from 'pngjs';
 
 const root = resolve('dist');
 const output = resolve('download-verification');
+const baseline = 'b8b23ef97b877d96d229b47a725fea2356e6b59f';
+const beforeHero = new Map();
 const androidUrl = 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.2/Podium-Air-v1.0.2.apk';
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 const server = createServer(async (req, res) => {
   try {
     const path = new URL(req.url, 'http://localhost').pathname;
-    const file = resolve(root, `.${path === '/' ? '/index.html' : decodeURIComponent(path)}`);
+    const file = resolve(root, `.${path.endsWith('/') ? `${path}index.html` : decodeURIComponent(path)}`);
     if (!file.startsWith(root + sep)) { res.writeHead(403).end(); return; }
     assert((await stat(file)).isFile());
     res.setHeader('Content-Type', mime[extname(file)] || 'application/octet-stream');
@@ -21,10 +25,62 @@ const server = createServer(async (req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 await mkdir(output, { recursive: true });
 const base = `http://127.0.0.1:${server.address().port}`;
+// Exact layout + a one-channel-level tolerance for Chromium glyph rasterization.
+// Logo bitmap bytes are protected separately; it is masked for this comparison.
+function sameProtectedPixels(a, b) {
+  const x = PNG.sync.read(a), y = PNG.sync.read(b);
+  return x.width === y.width && x.height === y.height && x.data.every((value, i) => Math.abs(value - y.data[i]) <= 1);
+}
+async function captureReview(page, phase, theme, width) {
+  await page.evaluate(() => { document.activeElement?.blur(); scrollTo(0, 0); });
+  const sections = await page.evaluate(() => [...document.querySelectorAll('.hero, .milestone, .statement, .showcase, .details, .journey, .ecosystem, .final-cta, .footer')].map(el => ({ name: el.classList[0], y: Math.round(el.getBoundingClientRect().top + scrollY), height: Math.round(el.getBoundingClientRect().height) })));
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  const full = new PNG({ width, height });
+  // Capture viewport tiles instead of Chromium's >8192px compositor surface.
+  for (let top = 0; top < height; top += 960) {
+    await page.evaluate(y => scrollTo(0, y), top);
+    await page.waitForTimeout(70);
+    const actual = await page.evaluate(() => Math.round(scrollY));
+    const frame = PNG.sync.read(await page.screenshot({ style: top ? '.site-header, .skip-link { visibility:hidden !important; }' : '.skip-link { visibility:hidden !important; }' }));
+    const sourceY = top - actual;
+    PNG.bitblt(frame, full, 0, sourceY, width, Math.min(960 - sourceY, height - top), 0, top);
+  }
+  await writeFile(`${output}/${phase}-${theme}-${width}.png`, PNG.sync.write(full));
+  for (const section of sections) {
+    const h = Math.min(section.height, height - section.y);
+    const crop = new PNG({ width, height: h });
+    PNG.bitblt(full, crop, 0, section.y, width, h, 0, 0);
+    await writeFile(`${output}/${phase}-${section.name}-${theme}-${width}.png`, PNG.sync.write(crop));
+  }
+  await page.evaluate(() => scrollTo(0, 0));
+}
 let browser;
 try {
   browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  // Render the approved production source with the unchanged built React islands.
+  // This directory exists only inside CI's test output, never in a deployed build.
+  await mkdir(`${root}/_before`, { recursive: true });
+  for (const name of ['assets', 'intro', 'download-count.json', 'download-history.json', 'download-counter.js', 'intro-gate.js']) await cp(`${root}/${name}`, `${root}/_before/${name}`, { recursive: true });
+  for (const name of ['index.html', 'styles.css', 'script.js']) await writeFile(`${root}/_before/${name}`, execFileSync('git', ['show', `${baseline}:${name}`]));
+  // Apply the same verified build snapshot to the historical source, just as its
+  // production build did. This makes before/after counts comparable without mock data.
+  const snapshot = JSON.parse(await readFile(`${root}/download-count.json`, 'utf8'));
+  const baselineHTML = (await readFile(`${root}/_before/index.html`, 'utf8'))
+    .replace(/data-total="\d+" data-verified-at="[^"]+"/, `data-total="${snapshot.total}" data-verified-at="${snapshot.verifiedAt}"`)
+    .replace(/(id="download-count" aria-hidden="true">)\d+/, `$1${snapshot.total}`);
+  await writeFile(`${root}/_before/index.html`, baselineHTML);
   for (const width of [1440, 768, 390, 320]) {
+    const beforeContext = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'reduce' });
+    const before = await beforeContext.newPage();
+    await before.route('https://api.github.com/**', route => route.abort());
+    await before.goto(`${base}/_before/`, { waitUntil: 'networkidle' });
+    await before.evaluate(() => document.fonts.ready);
+    await captureReview(before, 'before', 'dark', width);
+    await before.locator('.theme-toggle').click();
+    await captureReview(before, 'before', 'light', width);
+    await before.locator('.hero').screenshot({ path: `${output}/before-hero-${width}.png` });
+    beforeHero.set(width, await before.locator('.hero').screenshot({ mask: [before.locator('.brand img')] }));
+    await beforeContext.close();
     const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
     const errors = [];
@@ -80,6 +136,7 @@ try {
     // The homepage starts dark; switching remains usable at every viewport.
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await page.locator('#top').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${output}/dark-${width}.png`, fullPage: true });
     assert.equal(await page.locator('.site-header').evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', 'Sticky dock must stay transparent');
     await page.locator('#downloads-count').scrollIntoViewIfNeeded();
@@ -90,6 +147,7 @@ try {
     const releaseBox = await page.locator('#hero-announcement').boundingBox();
     const downloadBox = await page.locator('#hero-download').boundingBox();
     assert(releaseBox.y >= downloadBox.y + downloadBox.height, 'Release announcement sits below download');
+    await page.locator('#top').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${output}/light-${width}.png`, fullPage: true });
     for (const link of await page.locator('a[href^="#"]').all()) {
       const href = await link.getAttribute('href');
@@ -100,11 +158,31 @@ try {
     assert.deepEqual(errors, []);
     await page.locator('#top').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${output}/dock-top-${width}.png` });
-    await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
+    const afterHero = await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
+    const protectedPixels = await page.locator('.hero').screenshot({ mask: [page.locator('.brand img')] });
+    assert(sameProtectedPixels(protectedPixels, beforeHero.get(width)), 'Protected hero must be visually identical at ' + width);
+    assert(await page.evaluate(() => document.fonts.check('100px "Six Caps"')), 'Condensed numeral font must load');
+    for (const total of ['10000', '100000', '9999999', '9007199254740991']) {
+      await page.locator('#download-count').evaluate((el, total) => {
+        el.style.setProperty('--digits', total.length);
+        el.replaceChildren(...[...total].map(n => { const digit = document.createElement('span'); digit.className = 'download-counter-digit'; digit.textContent = n; return digit; }));
+      }, total);
+      assert(await page.locator('#download-count').evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'Future count must fit: ' + total);
+      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Future count page overflow: ' + total);
+    }
+    // Restore the actual observed total; synthetic values never appear in review screenshots.
+    await page.locator('#download-count').evaluate(el => {
+      const total = document.querySelector('#download-counter').dataset.total;
+      el.style.setProperty('--digits', total.length);
+      el.replaceChildren(...[...total].map(n => { const digit = document.createElement('span'); digit.className = 'download-counter-digit'; digit.textContent = n; return digit; }));
+    });
     await page.locator('#download').scrollIntoViewIfNeeded();
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
     await page.locator('#downloads-count').screenshot({ path: `${output}/metrics-${width}.png` });
     if (width === 1440 || width === 390) await page.screenshot({ path: `${output}/full-${width}.png`, fullPage: true });
+    await captureReview(page, 'after', 'light', width);
+    await page.locator('.theme-toggle').click();
+    await captureReview(page, 'after', 'dark', width);
     await context.close();
   }
   // A later valid Android release must update APKs on every APK link.
@@ -138,6 +216,9 @@ try {
   await motionPage.keyboard.press('Tab');
   assert.equal(await motionPage.locator(':focus').innerText(), 'Skip to content');
   await motionPage.screenshot({ path: `${output}/intro-finished-390.png` });
+  assert.equal(await motionPage.locator('.v2 .is-pending').count(), 0, 'Below-hero content must not wait for a reveal');
+  assert(await motionPage.locator('.statement h2, .feature-lines article, .showcase-copy, .details-grid article, .journey-head, .story-chapter, .download-option').evaluateAll(nodes => nodes.every(el => getComputedStyle(el).opacity === '1')), 'Content must already be visible before scrolling');
+  assert(await motionPage.locator('.v2 img').evaluateAll(images => images.every(img => img.loading === 'eager')), 'Below-hero images must start loading before scroll');
   const wave = motionPage.locator('#hero-motion canvas');
   await motionPage.waitForFunction(() => document.querySelector('#hero-motion canvas')?.dataset.animating === 'true');
   await motionPage.screenshot({ path: `${output}/wave-hero-390.png` });
