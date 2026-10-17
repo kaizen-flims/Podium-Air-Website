@@ -177,5 +177,42 @@
   });
   systemTheme.addEventListener('change', labelTheme);
 
+  // Rotate groove reflections around the photographed spindle, not the rectangular artwork.
+  const vinyl = document.querySelector('.mix-feature');
+  if (vinyl) {
+    const art = vinyl.querySelector('.vinyl-art');
+    const motion = document.createElement('span');
+    motion.className = 'vinyl-motion';
+    motion.setAttribute('aria-hidden', 'true');
+    vinyl.append(motion);
+    const toggle = document.createElement('button');
+    toggle.className = 'vinyl-toggle';
+    toggle.type = 'button';
+    vinyl.append(toggle);
+    const preference = matchMedia('(prefers-reduced-motion: reduce)');
+    let paused = preference.matches;
+    let visible = false;
+    const update = () => {
+      motion.style.animationPlayState = !paused && visible && !document.hidden ? 'running' : 'paused';
+      toggle.textContent = paused ? 'Play vinyl' : 'Pause vinyl';
+      toggle.setAttribute('aria-label', paused ? 'Play vinyl animation' : 'Pause vinyl animation');
+    };
+    toggle.addEventListener('click', () => { paused = !paused; update(); });
+    preference.addEventListener('change', () => { paused = preference.matches; update(); });
+    document.addEventListener('visibilitychange', update);
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); }).observe(vinyl);
+    const resize = () => {
+      const w = art.clientWidth, h = art.clientHeight;
+      const scale = Math.max(w / 1536, h / 1024);
+      const position = parseFloat(getComputedStyle(art).objectPosition) / 100;
+      motion.style.width = motion.style.height = `${1760 * scale}px`;
+      motion.style.left = `${(w - 1536 * scale) * position + 1536 * scale - 880 * scale}px`;
+      motion.style.top = `${(h - 1024 * scale) / 2 + 455 * scale - 880 * scale}px`;
+    };
+    new ResizeObserver(resize).observe(vinyl);
+    resize();
+    update();
+  }
+
   // Lower-page content is immediately visible. Do not gate reading on scroll reveals.
 })();

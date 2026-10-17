@@ -255,3 +255,19 @@
   .v2 .download-link { font-size: 12px; }
   .v2 .footer-brand { font-size: 88px; }
 }
+
+/* Moving groove reflections retain the original photographic lighting and crop. */
+.v2 .vinyl-motion {
+  position: absolute; z-index: -2; pointer-events: none; border-radius: 50%;
+  background: repeating-conic-gradient(from 12deg, transparent 0deg 24deg, #ffb9ac26 25deg, transparent 28deg 61deg), conic-gradient(transparent 0deg, #ffbdaf40 30deg, transparent 65deg 180deg, #ff78552b 210deg, transparent 245deg);
+  mask-image: radial-gradient(circle closest-side, transparent 30%, #000 32% 97%, transparent 99%);
+  mix-blend-mode: screen; animation: vinyl-revolution 12s linear infinite;
+  animation-play-state: paused;
+}
+@keyframes vinyl-revolution { to { transform: rotate(360deg); } }
+.v2 .vinyl-toggle {
+  position: absolute; top: 20px; left: 20px; z-index: 1;
+  color: #fff; background: #19030699; border: 1px solid #ffffff40;
+  border-radius: 999px; padding: 10px 16px; min-height: 44px;
+  font-size: 12px; backdrop-filter: blur(8px);
+}
