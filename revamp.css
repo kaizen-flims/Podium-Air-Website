@@ -75,7 +75,7 @@
   font-size: min(46vw, 660px, calc(320vw / var(--digits, 4)));
   letter-spacing: 0;
   line-height: 1;
-  margin: -.04em 0 -.08em;
+  margin: 0 0 24px;
   max-width: 100%;
 }
 .v2 .download-counter-digit { width: .255em; flex-shrink: 0; }
@@ -84,7 +84,7 @@
 .v2 .growth-figure { margin-top: 40px; padding-top: 20px; }
 .v2 .graph-top { font: 11px 'Courier New', monospace; letter-spacing: .02em; text-transform: uppercase; }
 .v2 .graph-top strong { font-weight: 400; }
-.v2 #growth-graph { max-height: 300px; margin-top: 24px; }
+.v2 #growth-graph { max-height: 300px; max-width: 760px; margin: 24px 0 0 auto; }
 .v2 .graph-line { stroke: var(--v-red); stroke-width: 2; stroke-dasharray: none; stroke-linejoin: miter; }
 .v2 .graph-point { fill: var(--v-bg); stroke: var(--v-red); stroke-width: 2; r: 4px; }
 .v2 .graph-value { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 400; }

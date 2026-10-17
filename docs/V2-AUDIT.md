@@ -7,7 +7,7 @@ Direction: Controlled Aggression × Cinematic Futurism × Dark Luxury.
 
 | Area | Decision | Evidence / treatment |
 |---|---|---|
-| Hero, shader, intro and glass controls | A — protected | Strong luminous composition. HTML block, styles, React islands, timings and behavior unchanged. Before/after hero pixel comparison at four widths in CI. |
+| Hero, shader, intro and glass controls | A — protected | Strong luminous composition. HTML block, styles, React islands, timings and behavior unchanged. Before/after hero pixel comparison at four widths in CI (only the unchanged logo bitmap is masked because Chromium resamples it after scrolling). |
 | Logo, red vinyl artwork, genuine app screenshots | A — protected assets | Original binaries retained. Vinyl reused at large scale in the AutoMix composition; real screenshots remain navigable. |
 | Transparent floating navigation | A — protected | Approved glass treatment retained, including scroll contrast and no black header bar. |
 | Counter / chart | C — redesign | Small chunky numerals and pink dashed chart weakened the opening. Monumental Six Caps numerals, real text, thin technical red geometry, full-width composition. |
@@ -29,6 +29,6 @@ Download fetching, edge cache, periodic refresh, fallback timestamps and cross-t
 
 Local syntax/type checks, 9 data tests and production build pass. Browser verification runs in the existing GitHub Actions environment because this Work container has no supported local browser preview. Direct live-site retrieval was blocked by the environment; the approved production commit and its existing desktop/mobile screenshots provided the baseline. CI renders that exact baseline and the new source side by side.
 
-CI checks 320, 390, 768 and 1440 px; both themes; fonts and glyph fit; 5-, 6-, 7- and 16-digit counter values; links; gallery keyboard controls; transparent dock; intro animation and exit; shader pause/resume/offscreen; reduced motion; missing WebGL/bundle and no JavaScript; periodic downloads, outage retention, stale rejection, recovery and cross-tab updates. Protected hero screenshots must match the baseline pixel for pixel. Existing source/asset checks below protect intro implementation as well.
+CI checks 320, 390, 768 and 1440 px; both themes; fonts and glyph fit; 5-, 6-, 7- and 16-digit counter values; links; gallery keyboard controls; transparent dock; intro animation and exit; shader pause/resume/offscreen; reduced motion; missing WebGL/bundle and no JavaScript; periodic downloads, outage retention, stale rejection, recovery and cross-tab updates. Protected hero screenshots must match baseline pixels outside the unchanged logo bitmap; its exact bytes are checked separately. Section captures avoid a Chromium full-page tiling artifact beyond 8192 px. Existing source/asset checks below protect intro implementation as well.
 
 Before/after images and motion recording are attached in the PR workflow artifact `Platform-download-verification`. Preview only; production remains on the approved baseline until explicit approval.

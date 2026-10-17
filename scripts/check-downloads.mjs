@@ -41,7 +41,16 @@ try {
     await before.screenshot({ path: `${output}/before-dark-${width}.png`, fullPage: true });
     await before.locator('.theme-toggle').click();
     await before.screenshot({ path: `${output}/before-light-${width}.png`, fullPage: true });
-    beforeHero.set(width, await before.locator('.hero').screenshot({ path: `${output}/before-hero-${width}.png` }));
+    await before.locator('.hero').screenshot({ path: `${output}/before-hero-${width}.png` });
+    // Chromium resamples the sticky logo differently after scrolling (observed <=5/255).
+    // Mask only that unchanged bitmap; protected source checks compare its exact bytes.
+    beforeHero.set(width, await before.locator('.hero').screenshot({ mask: [before.locator('.brand img')] }));
+    for (const theme of ['light', 'dark']) {
+      if (theme === 'dark') await before.locator('.theme-toggle').click();
+      for (const section of ['milestone', 'statement', 'showcase', 'details', 'journey', 'ecosystem', 'final-cta', 'footer']) {
+        await before.locator('.' + section).screenshot({ path: `${output}/before-${section}-${theme}-${width}.png`, style: '.site-header { visibility: hidden !important; }' });
+      }
+    }
     await beforeContext.close();
     const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
@@ -121,7 +130,8 @@ try {
     await page.locator('#top').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${output}/dock-top-${width}.png` });
     const afterHero = await page.locator('.hero').screenshot({ path: `${output}/hero-${width}.png` });
-    assert(afterHero.equals(beforeHero.get(width)), 'Protected hero must be pixel-identical at ' + width);
+    const protectedPixels = await page.locator('.hero').screenshot({ mask: [page.locator('.brand img')] });
+    assert(protectedPixels.equals(beforeHero.get(width)), 'Protected hero must be pixel-identical at ' + width);
     assert(await page.evaluate(() => document.fonts.check('100px "Six Caps"')), 'Condensed numeral font must load');
     for (const total of ['10000', '100000', '9999999', '9007199254740991']) {
       await page.locator('#download-count').evaluate((el, total) => {
@@ -141,6 +151,12 @@ try {
     await page.locator('#download').screenshot({ path: `${output}/downloads-${width}.png` });
     await page.locator('#downloads-count').screenshot({ path: `${output}/metrics-${width}.png` });
     if (width === 1440 || width === 390) await page.screenshot({ path: `${output}/full-${width}.png`, fullPage: true });
+    for (const theme of ['light', 'dark']) {
+      if (theme === 'dark') await page.locator('.theme-toggle').click();
+      for (const section of ['milestone', 'statement', 'showcase', 'details', 'journey', 'ecosystem', 'final-cta', 'footer']) {
+        await page.locator('.' + section).screenshot({ path: `${output}/after-${section}-${theme}-${width}.png`, style: '.site-header { visibility: hidden !important; }' });
+      }
+    }
     await context.close();
   }
   // A later valid Android release must update APKs on every APK link.
