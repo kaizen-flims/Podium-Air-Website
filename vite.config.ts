@@ -8,8 +8,12 @@ export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL(".", import.meta.url)) } },
   build: {
     outDir: "dist/intro",
+    minify: true,
     emptyOutDir: false,
-    lib: { entry: "src/intro.tsx", formats: ["es"], fileName: () => "intro.js", cssFileName: "intro" },
+    rolldownOptions: {
+      input: "src/intro.tsx",
+      output: { entryFileNames: "intro.js", assetFileNames: "intro.[ext]" },
+    },
     // React and Three.js are bundled so the deployed site needs no runtime CDN.
   },
 })

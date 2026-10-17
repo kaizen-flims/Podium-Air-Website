@@ -256,13 +256,16 @@
   .v2 .footer-brand { font-size: 88px; }
 }
 
-/* Moving groove reflections retain the original photographic lighting and crop. */
-.v2 .vinyl-motion {
-  position: absolute; z-index: -2; pointer-events: none; border-radius: 50%;
-  background: repeating-conic-gradient(from 12deg, transparent 0deg 24deg, #ffb9ac26 25deg, transparent 28deg 61deg), conic-gradient(transparent 0deg, #ffbdaf40 30deg, transparent 65deg 180deg, #ff78552b 210deg, transparent 245deg);
-  mask-image: radial-gradient(circle closest-side, transparent 30%, #000 32% 97%, transparent 99%);
-  mix-blend-mode: screen; animation: vinyl-revolution 12s linear infinite;
+/* Real transparent record rotates as one image; the red stage stays stationary. */
+.v2 .mix-feature { background: radial-gradient(ellipse at 65% 15%, #630800, #210006 65%, #100004); }
+.v2 .vinyl-art {
+  width: max(880px, 110%); height: auto; max-width: none; aspect-ratio: 1;
+  inset: auto; left: 22%; top: -38%; object-fit: contain;
+  transform-origin: 50% 50%; animation: vinyl-revolution 10s linear infinite;
   animation-play-state: paused;
+}
+@media (max-width: 700px) {
+  .v2 .vinyl-art { width: 780px; left: 12%; top: -12%; }
 }
 @keyframes vinyl-revolution { to { transform: rotate(360deg); } }
 .v2 .vinyl-toggle {
