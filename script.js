@@ -36,17 +36,20 @@
 
   const screens = {
     home: {
-      src: 'assets/update-screen.jpg',
+      src: 'assets/update-screen.webp',
+      srcset: 'assets/update-screen-360.webp 360w, assets/update-screen.webp 691w',
       alt: 'Real Podium Air Listen Now screen showing music recommendations and its in-app update prompt',
       caption: 'Listen Now brings your recent tracks, albums and quick picks together.', index: '01'
     },
     accounts: {
-      src: 'assets/account-screen.jpg',
+      src: 'assets/account-screen.webp',
+      srcset: 'assets/account-screen-360.webp 360w, assets/account-screen.webp 691w',
       alt: 'Real Podium Air account switcher over the Listen Now screen',
       caption: 'Switch accounts without losing your place in the music.', index: '02'
     },
     settings: {
-      src: 'assets/settings-screen.jpg',
+      src: 'assets/settings-screen.webp',
+      srcset: 'assets/settings-screen-360.webp 360w, assets/settings-screen.webp 691w',
       alt: 'Real Podium Air settings screen with playback and language controls',
       caption: 'Fine-tune playback and make the app feel yours.', index: '03'
     }
@@ -70,6 +73,7 @@
     panel.setAttribute('aria-labelledby', tab.id);
     if (focus) tab.focus();
     const swap = () => {
+      screen.srcset = next.srcset;
       screen.src = next.src;
       screen.alt = next.alt;
       caption.textContent = next.caption;

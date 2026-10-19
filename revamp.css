@@ -1,7 +1,7 @@
 /* V2 art direction. Deliberately scoped: no root, hero, intro or dock overrides. */
 @font-face {
   font-family: 'Six Caps';
-  src: url('assets/six-caps.ttf') format('truetype');
+  src: url('assets/six-caps.woff') format('woff');
   font-weight: 400;
   font-display: swap;
 }

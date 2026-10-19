@@ -2,7 +2,7 @@
 
 Base: `main` at `3091b1d61673cb03abda63982f34306e1dad3824` (PR #15).
 
-Only `styles.css` changes the deployed website: 34 rules and one orphaned keyframe are deleted, totaling **2,315 bytes** (29,210 → 26,895 bytes). No retained CSS declaration, selector, whitespace, ordering, animation or media/supports wrapper is changed. No runtime JavaScript, HTML, React component, asset, dependency, build configuration or SEO/download implementation is changed.
+Within the cleanup itself, only `styles.css` changes the deployed website: 34 rules and one orphaned keyframe are deleted, totaling **2,315 bytes** (29,210 → 26,895 bytes). No retained CSS declaration, selector, whitespace, ordering, animation or media/supports wrapper is changed. The cleanup does not alter runtime JavaScript, HTML, React components, assets, dependencies, build configuration or SEO/download implementation. PR #17 now also includes the approved work from PR #16, as described below.
 
 ## Deletion evidence
 
@@ -61,12 +61,16 @@ Exact deletions follow. The accompanying JSON manifest records each baseline ran
 - All standalone scripts: each has a current runtime, build, CI or verification purpose.
 - Every asset: current screenshots/fonts remain referenced; `red-record.webp` is explicitly protected V2 artwork; the former `social-card.png` may still be requested by cached social cards. No asset was established to be safe to delete.
 - Provenance/audit documents and asset licenses.
-- PR #16's performance and text-animation changes. This PR is independently based on main and contains none of that work.
+- PR #16's performance and text-animation changes are now included unchanged in this combined PR, at Prem's request. All runtime files match PR #16 exactly except for the already-verified V1 CSS deletions in `styles.css`. The loading screen, hero and shader sources remain byte-identical to main.
 
 ## Regression verification
 
 `node scripts/check-v1-cleanup.mjs` serves the built page and compares the original and cleaned stylesheets on the same DOM. It checks every computed property and bounding rectangle for every element and its before/after pseudo-elements, and asserts that removed selectors match no elements. Coverage: home/privacy, 320/390/768/1024/1440px, light/dark, JavaScript enabled/disabled, with scroll, gallery tabs, vinyl toggle and focus additionally exercised on the JavaScript homepage at 390/1440px. CSS animation/transition playback is frozen only inside this test for deterministic comparison; active animation source and compiled intro/hero bundles are separately byte checked.
 
-Run with an optional build directory to repeat the comparison against PR #16: `node scripts/check-v1-cleanup.mjs ../og-audit/dist`. The new regression runs in the existing platform-download CI workflow after the browser tools are installed.
+An optional build-directory argument can repeat the comparison against another checkout's build. The new regression now runs directly against the combined build and runs in the existing platform-download CI workflow after the browser tools are installed.
 
 Local results are recorded in the pull request. Build warnings about existing large shader bundles and preserved `use client` directives are pre-existing; no V2 optimization is attempted.
+
+## Combined delivery
+
+PR #17 incorporates PR #16 at `4ac1ebe30b21b0b3bb8a5373798cc3f80f412289`, including its word-by-word heading/paragraph motion, reversible Podium → Podium Air story, responsive WebP screenshots, lazy loading and equivalent WOFF font. These files are imported without edits. The 34 V1 rules and orphaned keyframe remain deleted, with the same 2,315-byte reduction and exact protection manifest. Both regression suites run in the combined workflow. Review and merge only PR #17; merging PR #16 separately is unnecessary. Neither PR is merged by this change.

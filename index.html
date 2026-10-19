@@ -20,14 +20,15 @@
   <title>Podium Air — Music goes with you</title>
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/podium-air-icon.webp">
-  <link rel="preload" href="assets/six-caps.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="assets/barlow-condensed-bold.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/six-caps.woff" as="font" type="font/woff" crossorigin>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="revamp.css">
+  <link rel="stylesheet" href="scroll-motion.css">
   <link rel="stylesheet" href="intro/intro.css">
   <script src="intro-gate.js"></script>
   <script type="module" src="intro/intro.js"></script>
   <script src="script.js" defer></script>
+  <script src="scroll-motion.js" defer></script>
   <script src="download-counter.js" type="module"></script>
 </head>
 <body>
@@ -101,7 +102,7 @@
       </div>
       <div class="showcase-visual" id="screen-panel" role="tabpanel" aria-labelledby="tab-home" tabindex="0">
 
-        <figure class="phone showcase-phone"><img id="screen-image" src="assets/update-screen.jpg" alt="Real Podium Air Listen Now screen showing music recommendations and its in-app update prompt" width="691" height="1536" loading="eager" decoding="async"></figure>
+        <figure class="phone showcase-phone"><img id="screen-image" src="assets/update-screen.webp" srcset="assets/update-screen-360.webp 360w, assets/update-screen.webp 691w" sizes="(max-width: 767px) 230px, 270px" alt="Real Podium Air Listen Now screen showing music recommendations and its in-app update prompt" width="691" height="1536" loading="lazy" decoding="async"></figure>
         <span id="screen-index" aria-hidden="true">01</span><span class="screen-spec" aria-hidden="true">PODIUM AIR / ANDROID<br>ACTUAL APP INTERFACE</span>
       </div>
     </section>
@@ -112,7 +113,7 @@
   <h2 id="details-title">Never break<br>the connection.</h2>
   <div class="details-grid">
     <article class="mix-feature">
-      <img class="vinyl-art" src="assets/vinyl-disc.webp" width="1254" height="1254" loading="eager" decoding="async" alt="Red light across the grooves of a vinyl record">
+      <img class="vinyl-art" src="assets/vinyl-disc.webp" width="1254" height="1254" loading="lazy" decoding="async" alt="Red light across the grooves of a vinyl record">
       <div class="mix-copy"><p class="eyebrow">CONTINUOUS / PLAYBACK</p><h3>One track ends.<br>The feeling doesn’t.</h3><p>AutoMix and crossfade keep your listening flowing.</p></div>
     </article>
     <article class="lyrics-feature"><div><p class="eyebrow">IN SYNC / LYRICS</p><h3>Every word.<br>Right there.</h3><p>Follow the lyrics and stay close to the music.</p></div><span class="type-art" aria-hidden="true">FEEL<br>EVERY<br>WORD.</span></article>
@@ -123,11 +124,18 @@
     </div>
   </div>
 </section>
-<section class="journey section-pad v2" id="journey" aria-labelledby="journey-title"><div class="journey-head"><p class="eyebrow">05 / THE ORIGIN</p><h2 id="journey-title">Built from<br>refusal to stop.</h2><p>One person. An idea that wouldn’t quit.<br>Prem wanted this app. So Prem built it.</p></div><div class="story-chapters"><article class="story-chapter"><span class="story-number" aria-hidden="true">13</span><div><span class="feature-code">CHAPTER 01 / PERSISTENCE</span><h3>Thirteen attempts.<br>One beginning.</h3><p>Prem tried making Podium. Twelve attempts didn’t become the app Prem had in mind. Prem kept going.</p><p>The thirteenth attempt became Podium: a home for the songs already on your phone.</p></div></article><article class="story-chapter"><div class="story-word" aria-hidden="true">+ AIR</div><div><span class="feature-code">CHAPTER 02 / EXPANSION</span><h3>Local was<br>just the start.</h3><p>Podium made room for local music. But Prem wanted Podium users to listen online too.</p><p>That next chapter had a name: Podium Air.</p></div></article><article class="story-chapter"><span class="story-number" aria-hidden="true">3<small>WEEKS</small></span><div><span class="feature-code">CHAPTER 03 / RELEASE</span><h3>Three weeks.<br>Then takeoff.</h3><p>Prem coded it. Then Podium Air dropped.</p><p>A personal idea became an app for anyone who loves to listen.</p></div></article></div></section>
-<section class="ecosystem section-pad v2" aria-labelledby="ecosystem-title"><div class="section-index"><span>06 / THE FAMILY</span><span>TWO WAYS IN</span></div><h2 id="ecosystem-title">One obsession.<br>Two identities.</h2><div class="ecosystem-grid"><article class="eco-item"><span class="feature-code">LOCAL / OFFLINE</span><h3>Podium.</h3><p>For the songs already yours. A local, offline music player with its own identity.</p></article><article class="eco-item air"><img src="assets/podium-air-icon.webp" width="64" height="64" loading="eager" decoding="async" alt=""><span class="feature-code">STREAM / DISCOVER</span><h3>Podium Air.</h3><p>For the music out there waiting to be heard. Stream, discover, and download.</p></article></div></section>
+<section class="journey section-pad v2" id="journey" aria-labelledby="journey-title"><div class="journey-head"><p class="eyebrow">05 / THE ORIGIN</p><h2 id="journey-title">Built from<br>refusal to stop.</h2><p>One person. An idea that wouldn’t quit.<br>Prem wanted this app. So Prem built it.</p></div><div class="journey-evolution" role="img" aria-label="From Podium, the offline player, to Podium Air, for streaming and discovery.">
+  <div class="evolution-stage" aria-hidden="true">
+    <p class="feature-code">THE SAME OBSESSION. A NEW HORIZON.</p>
+    <p class="evolution-name"><span>Podium</span><span class="evolution-air">Air</span></p>
+    <div class="evolution-track"><span></span></div>
+    <div class="evolution-labels"><span>LOCAL / OFFLINE</span><span>STREAM / DISCOVER</span></div>
+  </div>
+</div><div class="story-chapters"><article class="story-chapter"><span class="story-number" aria-hidden="true">13</span><div><span class="feature-code">CHAPTER 01 / PERSISTENCE</span><h3>Thirteen attempts.<br>One beginning.</h3><p>Prem tried making Podium. Twelve attempts didn’t become the app Prem had in mind. Prem kept going.</p><p>The thirteenth attempt became Podium: a home for the songs already on your phone.</p></div></article><article class="story-chapter"><div class="story-word" aria-hidden="true">+ AIR</div><div><span class="feature-code">CHAPTER 02 / EXPANSION</span><h3>Local was<br>just the start.</h3><p>Podium made room for local music. But Prem wanted Podium users to listen online too.</p><p>That next chapter had a name: Podium Air.</p></div></article><article class="story-chapter"><span class="story-number" aria-hidden="true">3<small>WEEKS</small></span><div><span class="feature-code">CHAPTER 03 / RELEASE</span><h3>Three weeks.<br>Then takeoff.</h3><p>Prem coded it. Then Podium Air dropped.</p><p>A personal idea became an app for anyone who loves to listen.</p></div></article></div></section>
+<section class="ecosystem section-pad v2" aria-labelledby="ecosystem-title"><div class="section-index"><span>06 / THE FAMILY</span><span>TWO WAYS IN</span></div><h2 id="ecosystem-title">One obsession.<br>Two identities.</h2><div class="ecosystem-grid"><article class="eco-item"><span class="feature-code">LOCAL / OFFLINE</span><h3>Podium.</h3><p>For the songs already yours. A local, offline music player with its own identity.</p></article><article class="eco-item air"><img src="assets/podium-air-icon.webp" width="64" height="64" loading="lazy" decoding="async" alt=""><span class="feature-code">STREAM / DISCOVER</span><h3>Podium Air.</h3><p>For the music out there waiting to be heard. Stream, discover, and download.</p></article></div></section>
     <section class="final-cta section-pad v2" id="download" aria-labelledby="download-title">
 
-      <span class="logo-crop"><img src="assets/podium-air-icon.webp" alt="Podium Air app icon" width="104" height="104" loading="eager" decoding="async"></span>
+      <span class="logo-crop"><img src="assets/podium-air-icon.webp" alt="Podium Air app icon" width="104" height="104" loading="lazy" decoding="async"></span>
 
       <p class="eyebrow">07 / YOUR NEXT MOVE</p><h2 id="download-title">All yours.<br>Press play.</h2>
       <div class="platform-downloads">

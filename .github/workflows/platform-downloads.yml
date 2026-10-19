@@ -2,7 +2,7 @@ name: Verify platform downloads
 on:
   push:
     branches: [main]
-    paths: [index.html, styles.css, revamp.css, "assets/**", script.js, intro-gate.js, "components/**", "src/**", "lib/**", package.json, package-lock.json, tsconfig.json, vite.config.ts, "scripts/**", .github/workflows/platform-downloads.yml]
+    paths: [index.html, styles.css, revamp.css, scroll-motion.css, scroll-motion.js, "assets/**", script.js, intro-gate.js, "components/**", "src/**", "lib/**", package.json, package-lock.json, tsconfig.json, vite.config.ts, "scripts/**", .github/workflows/platform-downloads.yml]
   pull_request:
 permissions:
   contents: read
@@ -37,6 +37,7 @@ jobs:
           node scripts/check-v1-cleanup.mjs
           node scripts/check-downloads.mjs | tee download-verification/result.txt
           node scripts/check-counter-browser.mjs
+          node scripts/check-scroll-motion.mjs
       - name: Verify published Cloudflare platform buttons
         if: github.event_name == 'push'
         run: node scripts/check-live-downloads.mjs
