@@ -40,12 +40,26 @@ for (const point of [...savedHistory, downloadSnapshot].sort((a,b) => Date.parse
 }
 await writeFile('dist/download-history.json', JSON.stringify([...byDay.values()]));
 
+// Social crawlers need an absolute image URL that exists on this deployment.
+// A Cloudflare preview must not fetch an unmerged asset from production.
+const suppliedUrl = process.env.SITE_URL || 'https://podium-air-website.pages.dev';
+const isCloudflarePreview = Boolean(process.env.CF_PAGES && process.env.CF_PAGES_BRANCH && process.env.CF_PAGES_BRANCH !== 'main');
+if (isCloudflarePreview && !process.env.CF_PAGES_URL) throw new Error('CF_PAGES_URL missing for Cloudflare preview');
+const imageBaseUrl = isCloudflarePreview ? process.env.CF_PAGES_URL : suppliedUrl;
+const socialImageUrl = new URL('assets/social-card-v2.png', imageBaseUrl.endsWith('/') ? imageBaseUrl : `${imageBaseUrl}/`);
+if (socialImageUrl.protocol !== 'https:') throw new Error('Social image must use HTTPS');
+
 for (const page of ['index.html', 'privacy.html']) {
   const source = await readFile(`dist/${page}`, 'utf8');
   let html = source.replace('href="styles.css"', `href="styles.css?v=${cssVersion}"`)
     .replace('href="revamp.css"', `href="revamp.css?v=${revampVersion}"`)
     .replace('src="script.js"', `src="script.js?v=${jsVersion}"`)
     .replace('src="download-counter.js"', `src="download-counter.js?v=${counterVersion}"`);
+  if (page === 'index.html') {
+    const imageTags = /(<meta (?:property="og:image"|name="twitter:image") content=")[^"]+(")/g;
+    if ([...html.matchAll(imageTags)].length !== 2) throw new Error('Expected OG and Twitter image tags');
+    html = html.replace(imageTags, (_, prefix, suffix) => `${prefix}${socialImageUrl.href}${suffix}`);
+  }
   if (page === 'index.html' && downloadSnapshot) {
     html = html.replace(/data-total="\d+" data-verified-at="[^"]+"/,
       `data-total="${downloadSnapshot.total}" data-verified-at="${downloadSnapshot.verifiedAt}"`)
@@ -58,7 +72,6 @@ for (const page of ['index.html', 'privacy.html']) {
 
 // SITE_URL may include a project path, as on GitHub Pages. Cloudflare supplies
 // CF_PAGES_URL when the site is built there instead.
-const suppliedUrl = process.env.SITE_URL || 'https://podium-air-website.pages.dev';
 if (suppliedUrl) {
   const url = new URL(suppliedUrl);
   if (url.protocol !== 'https:') throw new Error('SITE_URL must use HTTPS');
