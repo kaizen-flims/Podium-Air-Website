@@ -34,6 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p download-verification
+          node scripts/check-v1-cleanup.mjs
           node scripts/check-downloads.mjs | tee download-verification/result.txt
           node scripts/check-counter-browser.mjs
       - name: Verify published Cloudflare platform buttons
