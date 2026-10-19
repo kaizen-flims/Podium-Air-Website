@@ -10,7 +10,13 @@ const old = before('index.html').toString();
 const current = readFileSync('index.html', 'utf8');
 for (const pattern of [/<header[\s\S]*?<\/header>/, /<section class="hero[\s\S]*?<\/section>/, /<div id="intro-root"[^\n]+/]) assert.equal(current.match(pattern)[0], old.match(pattern)[0]);
 const meta = html => html.match(/<meta[^>]+>/g);
-assert.deepEqual(meta(current), meta(old), 'SEO metadata must stay unchanged');
+// The approved social card is intentionally different. Everything else is protected.
+const unchangedMeta = html => meta(html).filter(tag => !/^<meta (?:property="og:image(?::type)?"|name="twitter:image") /.test(tag));
+assert.deepEqual(unchangedMeta(current), unchangedMeta(old), 'Unrelated SEO metadata must stay unchanged');
+for (const kind of ['property="og:image"', 'name="twitter:image"']) {
+  assert(current.includes(`<meta ${kind} content="https://podium-air-website.pages.dev/assets/social-card-v2.png">`), `Missing approved ${kind} URL`);
+}
+assert(current.includes('<meta property="og:image:type" content="image/png">'), 'OG PNG type must be declared');
 const links = html => [...html.matchAll(/href="(https:\/\/github.com\/kaizen-flims\/Podium-Air\/releases[^"#]*)"/g)].map(m => m[1]).sort();
 assert.deepEqual(links(current), links(old), 'Release destinations must stay unchanged');
-console.log('PASS: protected hero/dock/intro markup, shaders, styles, artwork, data implementation, SEO metadata and release destinations are unchanged.');
+console.log('PASS: protected hero/dock/intro markup, shaders, styles, artwork, data implementation, unrelated SEO metadata and release destinations are unchanged.');
