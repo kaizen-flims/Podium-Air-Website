@@ -4,7 +4,7 @@ import { fetchDownloadTotal, validSnapshot } from '../download-counter.js';
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['index.html', 'privacy.html', 'styles.css', 'revamp.css', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json']) {
+for (const file of ['index.html', 'privacy.html', 'styles.css', 'revamp.css', 'scroll-motion.css', 'scroll-motion.js', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json']) {
   await cp(file, `dist/${file}`);
 }
 await cp('google97acfcede1709f28.html', 'dist/google97acfcede1709f28.html');
@@ -15,6 +15,8 @@ await cp('assets', 'dist/assets', { recursive: true });
 const version = async file => createHash('sha256').update(await readFile(file)).digest('hex').slice(0, 12);
 const cssVersion = await version('styles.css');
 const revampVersion = await version('revamp.css');
+const motionCSSVersion = await version('scroll-motion.css');
+const motionJSVersion = await version('scroll-motion.js');
 const jsVersion = await version('script.js');
 const counterVersion = await version('download-counter.js');
 // Refresh the API-offline fallback on every deploy. Never replace it with zero
@@ -53,6 +55,8 @@ for (const page of ['index.html', 'privacy.html']) {
   const source = await readFile(`dist/${page}`, 'utf8');
   let html = source.replace('href="styles.css"', `href="styles.css?v=${cssVersion}"`)
     .replace('href="revamp.css"', `href="revamp.css?v=${revampVersion}"`)
+    .replace('href="scroll-motion.css"', `href="scroll-motion.css?v=${motionCSSVersion}"`)
+    .replace('src="scroll-motion.js"', `src="scroll-motion.js?v=${motionJSVersion}"`)
     .replace('src="script.js"', `src="script.js?v=${jsVersion}"`)
     .replace('src="download-counter.js"', `src="download-counter.js?v=${counterVersion}"`);
   if (page === 'index.html') {

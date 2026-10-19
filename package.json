@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test tests/downloads.test.mjs",
     "build": "node scripts/build.mjs && vite build",
-    "check": "node --check script.js && node --check download-counter.js && node --check functions/api/downloads.js && node --check intro-gate.js && tsc --noEmit"
+    "check": "node --check script.js && node --check scroll-motion.js && node --check download-counter.js && node --check functions/api/downloads.js && node --check intro-gate.js && tsc --noEmit"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.5.0",
