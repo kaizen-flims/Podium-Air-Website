@@ -65,7 +65,7 @@ Exact deletions follow. The accompanying JSON manifest records each baseline ran
 
 ## Regression verification
 
-`node scripts/check-v1-cleanup.mjs` serves the built page and compares the original and cleaned stylesheets on the same DOM. It checks every computed property and bounding rectangle for every element and its before/after pseudo-elements, and asserts that removed selectors match no elements. Coverage: home/privacy, 320/390/768/1024/1440px, light/dark, JavaScript enabled/disabled, scroll, gallery tabs, vinyl toggle and focus. CSS animation/transition playback is frozen only inside this test for deterministic comparison; active animation source and compiled intro/hero bundles are separately byte checked.
+`node scripts/check-v1-cleanup.mjs` serves the built page and compares the original and cleaned stylesheets on the same DOM. It checks every computed property and bounding rectangle for every element and its before/after pseudo-elements, and asserts that removed selectors match no elements. Coverage: home/privacy, 320/390/768/1024/1440px, light/dark, JavaScript enabled/disabled, with scroll, gallery tabs, vinyl toggle and focus additionally exercised on the JavaScript homepage at 390/1440px. CSS animation/transition playback is frozen only inside this test for deterministic comparison; active animation source and compiled intro/hero bundles are separately byte checked.
 
 Run with an optional build directory to repeat the comparison against PR #16: `node scripts/check-v1-cleanup.mjs ../og-audit/dist`. The new regression runs in the existing platform-download CI workflow after the browser tools are installed.
 

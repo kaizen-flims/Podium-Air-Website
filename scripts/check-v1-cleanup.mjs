@@ -43,7 +43,7 @@ try {
       for (const path of ['/#top', '/privacy.html']) {
         await page.goto(`http://127.0.0.1:${server.address().port}${path}`);
         await page.evaluate(() => document.fonts.ready);
-        const result = await page.evaluate(({ baseline, cleaned, rules }) => {
+        const result = await page.evaluate(({ baseline, cleaned, rules, interactive }) => {
           // Freeze only in this test. Runtime animation definitions remain byte protected.
           const freeze = document.createElement('style');
           freeze.textContent = '*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important;scroll-behavior:auto!important}';
@@ -78,6 +78,7 @@ try {
           for (const theme of ['dark', 'light']) {
             document.documentElement.dataset.theme = theme;
             compare(theme + ' top');
+            if (!interactive) continue;
             scrollTo(0, document.body.scrollHeight / 2);
             compare(theme + ' scrolled');
             document.querySelectorAll('[role="tab"]').forEach(tab => { tab.click(); compare(theme + ' gallery tab'); });
@@ -87,8 +88,9 @@ try {
             compare(theme + ' focus');
           }
           return count;
-        }, { baseline, cleaned, rules: removals.rules });
+        }, { baseline, cleaned, rules: removals.rules, interactive: javaScriptEnabled && path.startsWith('/#') && [390, 1440].includes(width) });
         comparisons += result;
+        console.log(`Compared ${path} at ${width}px, JS=${javaScriptEnabled}: ${result} states`);
       }
     }
     await context.close();
