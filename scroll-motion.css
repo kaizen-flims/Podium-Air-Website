@@ -7,14 +7,17 @@
 .evolution-track > span { display: block; height: 100%; background: var(--v-red); transform-origin: left; }
 .evolution-labels { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; color: var(--v-muted); font: 10px/1.5 'Courier New', monospace; letter-spacing: .06em; }
 .motion-word { display: inline-block; }
+.motion-unit { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .12em; margin-bottom: -.12em; }
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    .motion-heading { view-timeline-name: --heading; view-timeline-axis: block; }
-    .motion-heading .motion-word {
+    .motion-heading, .motion-copy { view-timeline-name: --reading; view-timeline-axis: block; view-timeline-inset: 0; }
+    .motion-heading .motion-word, .motion-copy .motion-word {
       animation: word-settle 1ms linear both;
-      animation-timeline: --heading;
-      animation-range: entry calc(var(--word-order) * 3%) entry calc(65% + var(--word-order) * 3%);
+      animation-timeline: --reading;
+      /* Spread the reveal across the viewport, not just the element's entry. */
+      animation-range: cover calc(10% + var(--word-progress) * 20%) cover calc(45% + var(--word-progress) * 20%);
     }
+    .motion-copy .motion-word { animation-name: word-read; }
     .motion-block {
       animation: block-settle 1ms linear both;
       animation-timeline: view();
@@ -33,7 +36,8 @@
     }
   }
 }
-@keyframes word-settle { from { opacity: .6; transform: translate3d(0, .24em, 0); } to { opacity: 1; transform: none; } }
+@keyframes word-settle { from { opacity: .6; transform: translate3d(0, 1.06em, 0) rotate(2deg); } to { opacity: 1; transform: none; } }
+@keyframes word-read { from { color: var(--v-muted); transform: translate3d(0, .18em, 0); } to { color: var(--v-ink); transform: none; } }
 @keyframes block-settle { from { opacity: 1; transform: translate3d(0, 24px, 0); } to { opacity: 1; transform: none; } }
 @keyframes air-arrives { from { opacity: .15; transform: translate3d(-.18em, .12em, 0); } to { opacity: 1; transform: none; } }
 @keyframes evolution-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
@@ -46,4 +50,5 @@
   .journey-evolution { height: auto; min-height: 0; }
   .evolution-stage { position: static; }
   .motion-word, .motion-block, .evolution-air, .evolution-track > span { opacity: 1 !important; transform: none !important; }
+  .motion-unit { overflow: visible; }
 }

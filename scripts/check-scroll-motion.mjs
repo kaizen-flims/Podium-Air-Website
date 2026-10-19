@@ -37,8 +37,8 @@ try {
     page.on('pageerror', error => errors.push(error.message));
     const requested = [];
     page.on('request', request => requested.push(request.url()));
-    await page.goto(base, { waitUntil: 'networkidle' });
-    await page.waitForSelector('#intro-root', { state: 'detached', timeout: 6000 });
+    // This suite covers below-hero motion; the existing suite tests intro timing.
+    await page.goto(base + '/#top', { waitUntil: 'networkidle' });
     if (fallback) await page.addStyleTag({ content: '.motion-word, .motion-block, .evolution-air, .evolution-track > span { animation: none !important; }' });
     assert.equal(await page.locator('.hero .motion-word, .intro .motion-word').count(), 0, 'Protected regions must not receive motion');
     assert(!requested.some(url => /vinyl-disc|account-screen|settings-screen/.test(url)), 'Far-offscreen artwork and inactive tabs must not consume initial bandwidth');
@@ -47,11 +47,22 @@ try {
     const heading = page.locator('#statement-title .motion-word').first();
     await position(page, '#statement-title', 826);
     const initial = Number(await heading.evaluate(word => getComputedStyle(word).opacity));
+    await position(page, '#statement-title', 550);
+    const wave = await page.locator('#statement-title .motion-word').evaluateAll(words => words.map(word => Number(getComputedStyle(word).opacity)));
+    assert(wave[0] > wave.at(-1) + .15, 'Words must stagger while the heading is inside the viewport');
+    await page.screenshot({ path: `download-verification/text-${fallback ? 'fallback' : 'native'}-390-mid.png` });
     await position(page, '#statement-title', 350);
     const entered = Number(await heading.evaluate(word => getComputedStyle(word).opacity));
     await position(page, '#statement-title', 826);
     const reversed = Number(await heading.evaluate(word => getComputedStyle(word).opacity));
     assert(entered > initial + .2 && reversed < entered - .2, 'Text must follow scrolling in both directions');
+    assert(await page.locator('.v2 h3 .motion-word').count() > 0, 'Feature headings must animate too');
+    const copy = '.story-chapter:first-child p:first-of-type';
+    await position(page, copy, 826);
+    const muted = await page.locator(copy).first().locator('.motion-word').first().evaluate(word => getComputedStyle(word).color);
+    await position(page, copy, 150);
+    const read = await page.locator(copy).first().locator('.motion-word').first().evaluate(word => getComputedStyle(word).color);
+    assert.notEqual(read, muted, 'Story paragraphs must highlight word by word as they are read');
     await position(page, '.journey-evolution', 800);
     const air = page.locator('.evolution-air');
     await page.waitForFunction(() => Number(getComputedStyle(document.querySelector('.evolution-air')).opacity) < .3);
