@@ -33,8 +33,8 @@
     }
   }
 }
-@keyframes word-settle { from { opacity: .32; transform: translate3d(0, .24em, 0); } to { opacity: 1; transform: none; } }
-@keyframes block-settle { from { opacity: .65; transform: translate3d(0, 24px, 0); } to { opacity: 1; transform: none; } }
+@keyframes word-settle { from { opacity: .6; transform: translate3d(0, .24em, 0); } to { opacity: 1; transform: none; } }
+@keyframes block-settle { from { opacity: 1; transform: translate3d(0, 24px, 0); } to { opacity: 1; transform: none; } }
 @keyframes air-arrives { from { opacity: .15; transform: translate3d(-.18em, .12em, 0); } to { opacity: 1; transform: none; } }
 @keyframes evolution-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (max-width: 767px) {

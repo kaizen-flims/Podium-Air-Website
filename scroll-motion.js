@@ -47,7 +47,7 @@
       if (words.has(target)) {
         words.get(target).forEach((word, index) => {
           const p = clamp((progress - index * .03) / .65);
-          word.style.opacity = String(.32 + .68 * p);
+          word.style.opacity = String(.6 + .4 * p);
           word.style.transform = `translate3d(0, ${(1 - p) * .24}em, 0)`;
         });
       } else if (target === story) {
@@ -56,7 +56,7 @@
         air.style.transform = `translate3d(${(1 - p) * -.18}em, ${(1 - p) * .12}em, 0)`;
         track.style.transform = `scaleX(${p})`;
       } else {
-        target.style.opacity = String(.65 + .35 * progress);
+        target.style.opacity = '1';
         target.style.transform = `translate3d(0, ${(1 - progress) * 24}px, 0)`;
       }
     }
