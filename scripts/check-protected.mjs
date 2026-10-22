@@ -12,9 +12,14 @@ const old = before('index.html').toString();
 const current = readFileSync('index.html', 'utf8');
 for (const pattern of [/<header[\s\S]*?<\/header>/, /<section class="hero[\s\S]*?<\/section>/, /<div id="intro-root"[^\n]+/]) assert.equal(current.match(pattern)[0], old.match(pattern)[0]);
 const meta = html => html.match(/<meta[^>]+>/g);
-// The approved social card is intentionally different. Everything else is protected.
+// PR #18 approved new SEO metadata; keep all visual baselines above unchanged.
+const approvedSEO = execFileSync('git', ['show', '31a88875126165796dbf0c589b2c5ea4bd9d5c96:index.html']).toString();
+// The approved social card is checked separately below.
 const unchangedMeta = html => meta(html).filter(tag => !/^<meta (?:property="og:image(?::type)?"|name="twitter:image") /.test(tag));
-assert.deepEqual(unchangedMeta(current), unchangedMeta(old), 'Unrelated SEO metadata must stay unchanged');
+assert.deepEqual(unchangedMeta(current), unchangedMeta(approvedSEO), 'Approved SEO metadata must stay unchanged');
+for (const pattern of [/<title>[\s\S]*?<\/title>/, /<link rel="canonical"[^>]+>/, /<script type="application\/ld\+json">[\s\S]*?<\/script>/]) {
+  assert.equal(current.match(pattern)?.[0], approvedSEO.match(pattern)[0], 'Approved title, canonical and structured data must stay unchanged');
+}
 for (const kind of ['property="og:image"', 'name="twitter:image"']) {
   assert(current.includes(`<meta ${kind} content="https://podium-air-website.pages.dev/assets/social-card-v2.png">`), `Missing approved ${kind} URL`);
 }
