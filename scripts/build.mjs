@@ -74,13 +74,13 @@ for (const page of ['index.html', 'privacy.html']) {
   await writeFile(`dist/${page}`, html);
 }
 
-// SITE_URL may include a project path, as on GitHub Pages. Cloudflare supplies
-// CF_PAGES_URL when the site is built there instead.
+// Discovery URLs always identify the preferred Cloudflare site, including on
+// the GitHub Pages mirror. SITE_URL still controls social image URLs above.
 if (suppliedUrl) {
   const url = new URL(suppliedUrl);
   if (url.protocol !== 'https:') throw new Error('SITE_URL must use HTTPS');
   if (url.search || url.hash) throw new Error('SITE_URL must not include a query or fragment');
-  const base = `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
+  const base = 'https://podium-air-website.pages.dev';
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${base}/</loc></url>\n  <url><loc>${base}/privacy.html</loc></url>\n</urlset>\n`;
   await writeFile('dist/sitemap.xml', sitemap);
   const robots = await readFile('dist/robots.txt', 'utf8');
