@@ -14,6 +14,12 @@ The workflow supplies `SITE_URL` for deployment-specific social image URLs. Clou
 
 The homepage includes linked `WebSite`, `WebPage`, and `SoftwareApplication` JSON-LD for the existing app. It intentionally makes no rating or review claims; schema validity alone does not make it eligible for Google’s software-app rich result. SEO changes must preserve the page body, visuals, scripts, and assets. After an approved production deployment, inspect the canonical homepage in Search Console, request indexing, and check/submit `https://podium-air-website.pages.dev/sitemap.xml`.
 
+## Search identity and static routing
+
+`about.html` provides official app/repository/download information and distinguishes similarly named projects. It is linked from Prem’s profile and the sitemap. The privacy canonical and sitemap use Cloudflare’s extensionless `/privacy` URL. A top-level `404.html` prevents unknown paths from being served as the homepage; it uses existing information-page styles, declares noindex, and is excluded from the sitemap. The homepage, visual assets and runtime scripts are unchanged.
+
+After `npm run build`, run `node scripts/check-seo.mjs` to validate canonical/sitemap consistency, shared identity markup, the factual page links and 404 packaging. This check also runs in the existing verification workflow.
+
 ## Creator identity
 
 `prem.html` is the public professional profile for Prem Das, also known as Kaizen and `@nottt.premm`. Its canonical URL is `/prem` (Cloudflare serves HTML pages without the extension). It uses the existing information-page layout and is linked from the unchanged-text footer credit and sitemap. Its Person identifier is shared with the homepage WebSite creator and SoftwareApplication maintainer. Original app contributor credits remain in the app repository. This provides consistent public identity information; it does not guarantee a Google AI answer or Knowledge Panel.

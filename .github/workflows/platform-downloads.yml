@@ -2,7 +2,7 @@ name: Verify platform downloads
 on:
   push:
     branches: [main]
-    paths: [index.html, styles.css, revamp.css, scroll-motion.css, scroll-motion.js, "assets/**", script.js, intro-gate.js, "components/**", "src/**", "lib/**", package.json, package-lock.json, tsconfig.json, vite.config.ts, "scripts/**", .github/workflows/platform-downloads.yml]
+    paths: [index.html, privacy.html, prem.html, about.html, 404.html, styles.css, revamp.css, scroll-motion.css, scroll-motion.js, "assets/**", script.js, intro-gate.js, "components/**", "src/**", "lib/**", package.json, package-lock.json, tsconfig.json, vite.config.ts, "scripts/**", .github/workflows/platform-downloads.yml]
   pull_request:
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
       - name: Check scripts and build static site
         env:
           SITE_URL: https://podium-air-website.pages.dev
-        run: npm run check && npm test && node scripts/check-protected.mjs && npm run build
+        run: npm run check && npm test && node scripts/check-protected.mjs && npm run build && node scripts/check-seo.mjs
       - name: Install pinned browser verification tools
         run: |
           npm install --no-save --package-lock=false playwright@1.62.1 pngjs@7.0.0
