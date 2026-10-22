@@ -14,6 +14,10 @@ The workflow supplies `SITE_URL` for deployment-specific social image URLs. Clou
 
 The homepage includes linked `WebSite`, `WebPage`, and `SoftwareApplication` JSON-LD for the existing app. It intentionally makes no rating or review claims; schema validity alone does not make it eligible for Google’s software-app rich result. SEO changes must preserve the page body, visuals, scripts, and assets. After an approved production deployment, inspect the canonical homepage in Search Console, request indexing, and check/submit `https://podium-air-website.pages.dev/sitemap.xml`.
 
+## Creator identity
+
+`prem.html` is the public professional profile for Prem Das, also known as Kaizen and `@nottt.premm`. Its canonical URL is `/prem` (Cloudflare serves HTML pages without the extension). It uses the existing information-page layout and is linked from the unchanged-text footer credit and sitemap. Its Person identifier is shared with the homepage WebSite creator and SoftwareApplication maintainer. Original app contributor credits remain in the app repository. This provides consistent public identity information; it does not guarantee a Google AI answer or Knowledge Panel.
+
 ## Releases
 
 The Android buttons start with a verified signed v1.0.1 APK URL and then checks GitHub's public latest-release endpoint. It accepts only non-draft, non-prerelease semver tags with a matching `Podium-Air-vX.Y.Z.apk` asset in the app repository. On errors or rate limits, the verified fallback stays in place. Update the fallback in `index.html` and `script.js` after a future stable release if you want API-offline visitors to get the newest version too.

@@ -17,9 +17,25 @@ const approvedSEO = execFileSync('git', ['show', '31a88875126165796dbf0c589b2c5e
 // The approved social card is checked separately below.
 const unchangedMeta = html => meta(html).filter(tag => !/^<meta (?:property="og:image(?::type)?"|name="twitter:image") /.test(tag));
 assert.deepEqual(unchangedMeta(current), unchangedMeta(approvedSEO), 'Approved SEO metadata must stay unchanged');
-for (const pattern of [/<title>[\s\S]*?<\/title>/, /<link rel="canonical"[^>]+>/, /<script type="application\/ld\+json">[\s\S]*?<\/script>/]) {
-  assert.equal(current.match(pattern)?.[0], approvedSEO.match(pattern)[0], 'Approved title, canonical and structured data must stay unchanged');
+for (const pattern of [/<title>[\s\S]*?<\/title>/, /<link rel="canonical"[^>]+>/]) {
+  assert.equal(current.match(pattern)?.[0], approvedSEO.match(pattern)[0], 'Approved title and canonical must stay unchanged');
 }
+// Creator identity adds only explicit Person relationships to the approved graph.
+const schema = html => JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+const expectedSchema = schema(approvedSEO);
+const profile = schema(readFileSync('prem.html', 'utf8'));
+assert.equal(profile['@type'], 'ProfilePage');
+assert.equal(profile.mainEntity.name, 'Prem Das');
+assert.equal(profile.mainEntity['@id'], 'https://podium-air-website.pages.dev/prem#person');
+assert.deepEqual(profile.mainEntity.sameAs, ['https://www.instagram.com/nottt.premm/', 'https://github.com/kaizen-flims']);
+expectedSchema['@graph'][0].creator = { '@id': profile.mainEntity['@id'] };
+expectedSchema['@graph'][2].maintainer = { '@id': profile.mainEntity['@id'] };
+expectedSchema['@graph'].push(profile.mainEntity);
+assert.deepEqual(schema(current), expectedSchema, 'Only the linked creator identity may extend the approved graph');
+// Preserve every homepage body byte except turning the existing Prem credit into a link.
+const seoBaseline = approvedSEO.slice(approvedSEO.indexOf('<body'));
+const currentBody = current.slice(current.indexOf('<body')).replace('<a href="prem.html" rel="author" aria-label="About Prem Das (@nottt.premm)">Prem</a>', 'Prem');
+assert.equal(currentBody, seoBaseline, 'Homepage visuals and functionality must remain unchanged');
 for (const kind of ['property="og:image"', 'name="twitter:image"']) {
   assert(current.includes(`<meta ${kind} content="https://podium-air-website.pages.dev/assets/social-card-v2.png">`), `Missing approved ${kind} URL`);
 }

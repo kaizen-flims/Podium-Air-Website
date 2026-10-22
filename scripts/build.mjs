@@ -4,7 +4,7 @@ import { fetchDownloadTotal, validSnapshot } from '../download-counter.js';
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['index.html', 'privacy.html', 'styles.css', 'revamp.css', 'scroll-motion.css', 'scroll-motion.js', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json']) {
+for (const file of ['index.html', 'privacy.html', 'prem.html', 'styles.css', 'revamp.css', 'scroll-motion.css', 'scroll-motion.js', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json']) {
   await cp(file, `dist/${file}`);
 }
 await cp('google97acfcede1709f28.html', 'dist/google97acfcede1709f28.html');
@@ -51,7 +51,7 @@ const imageBaseUrl = isCloudflarePreview ? process.env.CF_PAGES_URL : suppliedUr
 const socialImageUrl = new URL('assets/social-card-v2.png', imageBaseUrl.endsWith('/') ? imageBaseUrl : `${imageBaseUrl}/`);
 if (socialImageUrl.protocol !== 'https:') throw new Error('Social image must use HTTPS');
 
-for (const page of ['index.html', 'privacy.html']) {
+for (const page of ['index.html', 'privacy.html', 'prem.html']) {
   const source = await readFile(`dist/${page}`, 'utf8');
   let html = source.replace('href="styles.css"', `href="styles.css?v=${cssVersion}"`)
     .replace('href="revamp.css"', `href="revamp.css?v=${revampVersion}"`)
@@ -81,7 +81,7 @@ if (suppliedUrl) {
   if (url.protocol !== 'https:') throw new Error('SITE_URL must use HTTPS');
   if (url.search || url.hash) throw new Error('SITE_URL must not include a query or fragment');
   const base = 'https://podium-air-website.pages.dev';
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${base}/</loc></url>\n  <url><loc>${base}/privacy.html</loc></url>\n</urlset>\n`;
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${base}/</loc></url>\n  <url><loc>${base}/privacy.html</loc></url>\n  <url><loc>${base}/prem</loc></url>\n</urlset>\n`;
   await writeFile('dist/sitemap.xml', sitemap);
   const robots = await readFile('dist/robots.txt', 'utf8');
   await writeFile('dist/robots.txt', `${robots.trimEnd()}\nSitemap: ${base}/sitemap.xml\n`);
