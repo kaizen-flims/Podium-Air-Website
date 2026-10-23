@@ -274,3 +274,25 @@
   border-radius: 999px; padding: 10px 16px; min-height: 44px;
   font-size: 12px; backdrop-filter: blur(8px);
 }
+
+/* Approved display typography: reuse the primary Six Caps face throughout V2. */
+.shader-hero h1,
+.v2 h2 {
+  font-family: 'Six Caps', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  letter-spacing: .015em;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+.shader-hero h1 { font-size: clamp(96px, 12vw, 176px); }
+.v2 .milestone-heading h2 { font-size: clamp(72px, 7.5vw, 112px); }
+.v2 .showcase h2 { font-size: clamp(72px, 8vw, 128px); }
+.v2 .journey-head h2 { font-size: clamp(80px, 8.5vw, 136px); }
+@media (max-width: 700px) {
+  .shader-hero h1 { font-size: clamp(80px, 23vw, 132px); }
+  .v2 h2,
+  .v2 .milestone-heading h2,
+  .v2 .showcase h2,
+  .v2 .journey-head h2 { font-size: clamp(64px, 17vw, 96px); }
+  .v2.final-cta h2 { font-size: clamp(88px, 23vw, 136px); }
+}
