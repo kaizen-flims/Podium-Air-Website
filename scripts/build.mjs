@@ -4,7 +4,7 @@ import { fetchDownloadTotal, validSnapshot } from '../download-counter.js';
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['index.html', 'privacy.html', 'prem.html', 'about.html', '404.html', 'styles.css', 'revamp.css', 'scroll-motion.css', 'scroll-motion.js', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json', '_redirects']) {
+for (const file of ['testers.html', 'testers.css', 'testers.js', 'testers-builds.json', 'index.html', 'privacy.html', 'prem.html', 'about.html', '404.html', 'styles.css', 'revamp.css', 'scroll-motion.css', 'scroll-motion.js', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json', '_redirects']) {
   await cp(file, `dist/${file}`);
 }
 await cp('google97acfcede1709f28.html', 'dist/google97acfcede1709f28.html');

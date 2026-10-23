@@ -5,5 +5,12 @@ export async function onRequest(context) {
     url.hostname = 'podiumair.pages.dev';
     return Response.redirect(url.toString(), 301);
   }
-  return context.next();
+  const response = await context.next();
+  if (/^\/testers(?:\.html)?\/?$/.test(url.pathname) || url.pathname === '/testers-builds.json') {
+    const hiddenResponse = new Response(response.body, response);
+    hiddenResponse.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    hiddenResponse.headers.set('Cache-Control', 'no-store');
+    return hiddenResponse;
+  }
+  return response;
 }

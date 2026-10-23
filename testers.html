@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="description" content="Podium Air tester builds, release checks and feedback.">
+  <meta name="theme-color" content="#101012">
+  <title>Testers — Podium Air</title>
+  <link rel="icon" href="/assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/testers.css">
+  <script src="/testers.js" type="module"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="header wrap">
+  <a class="brand" href="/" aria-label="Podium Air home"><img src="/assets/podium-air-icon.webp" width="32" height="32" alt=""><span>PODIUM AIR</span></a>
+  <span class="eyebrow badge">TESTERS HUB</span>
+</header>
+<main id="main" class="wrap">
+  <section class="intro" aria-labelledby="page-title">
+    <p class="eyebrow red">EARLY ACCESS / REAL FEEDBACK</p>
+    <h1 id="page-title">Before it<br>goes <span>live.</span></h1>
+    <div class="intro-copy"><p>You’re helping shape the next Podium Air.</p><p>Pick your platform, check the build notes, and tell Prem what needs work.</p></div>
+  </section>
+  <nav class="section-nav" aria-label="Tester navigation"><a href="#builds">01 / Builds</a><a href="#checks">02 / Test checklist</a><a href="#feedback">03 / Report a bug</a></nav>
+  <section id="builds" class="section" aria-labelledby="builds-title">
+    <div class="section-heading"><div><p class="eyebrow red">01 / DOWNLOADS</p><h2 id="builds-title">Your next build.</h2></div><p>Experimental builds. Read the install notes first.</p></div>
+    <div class="platforms" role="group" aria-label="Choose your platform"><button type="button" data-platform="android" aria-pressed="true">Android</button><button type="button" data-platform="windows" aria-pressed="false">Windows</button><button type="button" data-platform="macos" aria-pressed="false">macOS</button><button type="button" data-platform="web" aria-pressed="false">Web / PWA</button></div>
+    <div id="build-status" class="status" role="status">Loading build details…</div>
+    <article id="build-card" class="build" hidden></article>
+    <button type="button" id="retry" class="quiet" hidden>Retry build details</button>
+    <noscript><p class="notice">Enable JavaScript to choose a build and generate a bug report. You can still use the checklist below.</p></noscript>
+  </section>
+  <section id="checks" class="section" aria-labelledby="checks-title">
+    <div class="section-heading"><div><p class="eyebrow red">02 / THE TEST PASS</p><h2 id="checks-title">Listen. Look. Break things.</h2></div><p>A few focused checks beat “it works.”</p></div>
+    <p class="helper">Tick off the checks you complete. Progress stays in this browser for the selected platform and build.</p>
+    <p id="progress" class="eyebrow progress" role="status">0 of 6 checked</p>
+    <div class="checklist">
+      <label><input type="checkbox" value="launch"><span><strong>Open & sign in</strong><small>Launch twice, try your usual sign-in, and check that your session persists.</small></span></label>
+      <label><input type="checkbox" value="playback"><span><strong>Keep the music playing</strong><small>Play, pause, skip, seek and shuffle. Test screen-off playback and your headphones.</small></span></label>
+      <label><input type="checkbox" value="library"><span><strong>Make it yours</strong><small>Search for music, add a favourite, use a playlist and revisit your library.</small></span></label>
+      <label><input type="checkbox" value="offline"><span><strong>Go offline</strong><small>Download a test track if supported, disable the network and try playing it.</small></span></label>
+      <label><input type="checkbox" value="visuals"><span><strong>Check the details</strong><small>Look at logos, profile photos, lyrics, spacing and text on your device.</small></span></label>
+      <label><input type="checkbox" value="stability"><span><strong>Come back later</strong><small>Switch apps, resume playback and watch for crashes, stutters or battery drain.</small></span></label>
+    </div>
+  </section>
+  <section id="feedback" class="section" aria-labelledby="feedback-title">
+    <div class="section-heading"><div><p class="eyebrow red">03 / FEEDBACK</p><h2 id="feedback-title">Tell us what happened.</h2></div><p>One problem per report. Screenshots help.</p></div>
+    <form id="report-form">
+      <div class="form-grid"><label>Device & OS<input name="device" required maxlength="160" placeholder="e.g. Poco F7 · Android 15" autocomplete="off"></label><label>Problem type<select name="category"><option>Playback</option><option>Sign-in</option><option>Downloads / offline</option><option>Library / playlists</option><option>Visual / branding</option><option>Crash / performance</option><option>Other</option></select></label></div>
+      <label>Short title<input name="title" required maxlength="160" placeholder="What went wrong?" autocomplete="off"></label>
+      <label>Steps to reproduce<textarea name="steps" required rows="4" maxlength="4000" placeholder="1. Open…&#10;2. Tap…&#10;3. The problem appears…"></textarea></label>
+      <div class="form-grid"><label>What did you expect?<textarea name="expected" required rows="3" maxlength="2000"></textarea></label><label>What actually happened?<textarea name="actual" required rows="3" maxlength="2000"></textarea></label></div>
+      <label>How often?<select name="frequency"><option>Every time</option><option>Sometimes</option><option>Only once so far</option></select></label>
+      <p class="helper">This form prepares a report; it does not send anything. Copy it and share it with Prem. Remove account details from screenshots before sharing.</p>
+      <div class="actions"><button type="submit" class="primary">Prepare report <span aria-hidden="true">↗</span></button><button type="button" id="copy-report" class="secondary" disabled>Copy report</button></div>
+      <p id="report-status" role="status" class="helper"></p>
+      <label id="report-label" hidden>Prepared report<textarea id="report-output" readonly rows="12" spellcheck="false"></textarea></label>
+    </form>
+  </section>
+  <aside class="closing"><p class="eyebrow red">THANK YOU FOR TESTING</p><p>The small things you catch make the release better for everyone.</p></aside>
+</main>
+<footer class="footer wrap"><span>Made with love by <a href="/prem">Prem</a>.</span><a href="/">Back to Podium Air ↗</a></footer>
+</body></html>

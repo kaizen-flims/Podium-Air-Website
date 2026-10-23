@@ -14,3 +14,15 @@
 
 /download-history.json
   Cache-Control: no-store
+
+/testers
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-cache
+
+/testers.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-cache
+
+/testers-builds.json
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store

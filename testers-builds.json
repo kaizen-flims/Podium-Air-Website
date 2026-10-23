@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "platforms": {
+    "android": {
+      "name": "Android",
+      "status": "Available for testing",
+      "version": "1.0.2-audit2-v1.8.1-branding4",
+      "label": "Podium Air Audit 2",
+      "date": "2026-10-21",
+      "commit": "6cd04956ae3e65a1d17716c463f9c7273cd4dc14",
+      "pr": "https://github.com/kaizen-flims/Podium-Air/pull/6",
+      "summary": "The current Android audit build includes the BitChord v1.8.1 integration and approved branding corrections. Device verification is still pending.",
+      "notes": [
+        "Installs separately from regular Podium Air as com.podium.air.audit2.",
+        "Already using Audit 2? Install over it without uninstalling. The initial Audit app is separate.",
+        "Music files in shared storage may be shared between apps. Avoid deleting your main downloads while testing.",
+        "Automatic update polling is disabled in this audit build."
+      ],
+      "focus": [
+        "Original, Liquid Glass and Chrome launcher icon spacing and edges.",
+        "One larger Chrome logo on Home, enlarged Library branding and the larger profile photo.",
+        "Playback, lyrics, queues, offline cache, Spotify import and stability."
+      ],
+      "knownIssues": [
+        "Final device appearance and playback behaviour need tester confirmation.",
+        "This build is labelled 1.0.2-audit2-v1.8.1-branding4; it is not a published v1.0.3 release."
+      ],
+      "assets": [
+        {
+          "name": "Podium-Air-Audit-2-v1.8.1.apk",
+          "label": "Android APK",
+          "url": "https://github.com/kaizen-flims/PodiuAirTesters/releases/download/android-audit2-branding4/Podium-Air-Audit-2-v1.8.1.apk",
+          "size": "165.21 MiB",
+          "sha256": "b7ecb2ef09f168f8bb3fc861aaf3e41645cd2d954f6611d047e1a283a115b518"
+        }
+      ]
+    },
+    "windows": {
+      "name": "Windows",
+      "status": "No dedicated build published",
+      "version": "Pending",
+      "summary": "A Windows tester package will appear here when it has been selected and published to the tester release repository.",
+      "notes": [
+        "Keep your regular installation until the tester package\u2019s install behaviour is confirmed."
+      ],
+      "focus": [],
+      "knownIssues": [],
+      "assets": []
+    },
+    "macos": {
+      "name": "macOS",
+      "status": "No dedicated build published",
+      "version": "Pending",
+      "summary": "Apple Silicon and Intel downloads will be listed separately when dedicated tester packages are published.",
+      "notes": [
+        "Choose the package for your Mac\u2019s processor when it becomes available."
+      ],
+      "focus": [],
+      "knownIssues": [],
+      "assets": []
+    },
+    "web": {
+      "name": "Web / PWA",
+      "status": "On hold",
+      "version": "Not ready",
+      "summary": "The iOS / PWA release is postponed. There is no supported iPhone playback build available from this hub.",
+      "notes": [
+        "Wait for a specific test brief before testing the web player."
+      ],
+      "focus": [],
+      "knownIssues": [
+        "iOS / Safari playback and authentication remain unresolved."
+      ],
+      "assets": []
+    }
+  }
+}
