@@ -1,9 +1,9 @@
 # Tester build distribution
 
 Hub: https://podiumair.pages.dev/testers
-Planned public asset repository: kaizen-flims/Podium-Air-Test-Builds
+Public asset repository: kaizen-flims/PodiuAirTesters
 
-The asset repository has not yet been created: GitHub account 2FA verification currently blocks browser repository creation. No release assets have been published by this change. The manifest deliberately has empty asset lists, and the page presents an honest pending state. Complete the account verification and release steps before merging this page as a ready download hub.
+The public asset repository was created by Prem. Android audit binaries are copied from the pinned CI artifact, verified by checksum, and distributed as prereleases. Each manifest update must follow a verified release upload.
 
 ## Distribution model
 
@@ -42,3 +42,5 @@ node scripts/check-seo.mjs
 node scripts/check-protected.mjs
 npm run check
 npm test
+
+APK SHA-256: b7ecb2ef09f168f8bb3fc861aaf3e41645cd2d954f6611d047e1a283a115b518

@@ -30,7 +30,7 @@ function restoreProgress() {
 function safeAsset(asset) {
   try {
     const url = new URL(asset.url);
-    return url.origin === 'https://github.com' && url.pathname.startsWith('/kaizen-flims/Podium-Air-Test-Builds/releases/download/') && typeof asset.name === 'string';
+    return url.origin === 'https://github.com' && url.pathname.startsWith('/kaizen-flims/PodiuAirTesters/releases/download/') && typeof asset.name === 'string';
   } catch { return false; }
 }
 function renderBuild() {

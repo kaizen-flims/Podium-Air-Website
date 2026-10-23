@@ -15,7 +15,7 @@ for (const key of ['android','windows','macos','web']) {
   for (const a of b.assets) {
     const u = new URL(a.url);
     assert.equal(u.origin, 'https://github.com');
-    assert(u.pathname.startsWith('/kaizen-flims/Podium-Air-Test-Builds/releases/download/'));
+    assert(u.pathname.startsWith('/kaizen-flims/PodiuAirTesters/releases/download/'));
     assert.match(a.sha256, /^[a-f0-9]{64}$/);
   }
 }
