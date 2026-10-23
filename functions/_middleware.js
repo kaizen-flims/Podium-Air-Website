@@ -1,4 +1,4 @@
-// Static requests use _redirects; Pages Functions need the same host migration.
+// Run for every path so the old hostname redirects pages, assets and APIs alike.
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   if (url.hostname === 'podium-air-website.pages.dev') {
