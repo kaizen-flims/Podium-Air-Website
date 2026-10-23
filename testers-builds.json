@@ -76,10 +76,10 @@
     "tv": {
       "name": "Android TV / Google TV",
       "label": "Podium Air TV Audit 1",
-      "status": "Build verification in progress",
+      "status": "Available for testing",
       "version": "0.1.0-tv-audit1",
       "pr": "https://github.com/kaizen-flims/Podium-Air/pull/10",
-      "summary": "The first Podium Air TV audit brings remote navigation, a TV player and lyrics to Android TV and Google TV. The APK is being compiled and verified before its direct download is published.",
+      "summary": "The first Podium Air TV audit brings remote navigation, a TV player and lyrics to Android TV and Google TV. Download the universal test APK below; real-TV sign-in and playback still need tester confirmation.",
       "notes": [
         "Android TV / Google TV running Android 8 or later. This APK does not support Samsung Tizen, LG webOS, Roku or Apple TV.",
         "Installs separately as com.podium.air.tv.audit. Keep your regular Podium Air app.",
@@ -88,14 +88,22 @@
       ],
       "focus": [
         "D-pad focus, select and back buttons across Home, Search, Library and Settings.",
-        "Playback, seeking, queue controls, lyrics and sleep/wake recovery.",
-        "TV speakers, Bluetooth or receiver output; USB audio if supported by your device."
+        "Playback, D-pad pause/seek, queue controls, lyrics and sleep/wake recovery.",
+        "TV speakers, Bluetooth or receiver output; compare spatial audio on/off. Try USB audio if supported."
       ],
       "knownIssues": [
         "No real-TV playback or sign-in success is claimed yet. Please include your TV model, Android version and remote type in reports.",
         "Display refresh switching and spatial audio depend on the TV and connected audio hardware."
       ],
-      "assets": [],
+      "assets": [
+        {
+          "name": "Podium-Air-TV-Audit-1.apk",
+          "label": "TV APK",
+          "url": "https://github.com/kaizen-flims/PodiuAirTesters/releases/download/tv-audit1/Podium-Air-TV-Audit-1.apk",
+          "size": "151.61 MiB",
+          "sha256": "32a69795f12b0e4a2828f99f67bc5ac62b7bddee1085d242fca3c93d2506d0e5"
+        }
+      ],
       "checklist": {
         "launch": {
           "title": "Open & sign in",
@@ -121,7 +129,9 @@
           "title": "Sleep & return",
           "text": "Switch TV apps, sleep and wake the TV, then resume. Report crashes, missing audio and lost remote focus."
         }
-      }
+      },
+      "commit": "ac1988943f1220540cfb3ff7a0c0c30b56a2bf31",
+      "date": "2026-10-23"
     }
   }
 }
