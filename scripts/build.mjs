@@ -4,7 +4,7 @@ import { fetchDownloadTotal, validSnapshot } from '../download-counter.js';
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['index.html', 'privacy.html', 'prem.html', 'about.html', '404.html', 'styles.css', 'revamp.css', 'scroll-motion.css', 'scroll-motion.js', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json']) {
+for (const file of ['index.html', 'privacy.html', 'prem.html', 'about.html', '404.html', 'styles.css', 'revamp.css', 'scroll-motion.css', 'scroll-motion.js', 'script.js', 'download-counter.js', 'intro-gate.js', 'robots.txt', '_headers', '_routes.json', '_redirects']) {
   await cp(file, `dist/${file}`);
 }
 await cp('google97acfcede1709f28.html', 'dist/google97acfcede1709f28.html');
@@ -44,7 +44,7 @@ await writeFile('dist/download-history.json', JSON.stringify([...byDay.values()]
 
 // Social crawlers need an absolute image URL that exists on this deployment.
 // A Cloudflare preview must not fetch an unmerged asset from production.
-const suppliedUrl = process.env.SITE_URL || 'https://podium-air-website.pages.dev';
+const suppliedUrl = process.env.SITE_URL || 'https://podiumair.pages.dev';
 const isCloudflarePreview = Boolean(process.env.CF_PAGES && process.env.CF_PAGES_BRANCH && process.env.CF_PAGES_BRANCH !== 'main');
 if (isCloudflarePreview && !process.env.CF_PAGES_URL) throw new Error('CF_PAGES_URL missing for Cloudflare preview');
 const imageBaseUrl = isCloudflarePreview ? process.env.CF_PAGES_URL : suppliedUrl;
@@ -80,7 +80,7 @@ if (suppliedUrl) {
   const url = new URL(suppliedUrl);
   if (url.protocol !== 'https:') throw new Error('SITE_URL must use HTTPS');
   if (url.search || url.hash) throw new Error('SITE_URL must not include a query or fragment');
-  const base = 'https://podium-air-website.pages.dev';
+  const base = 'https://podiumair.pages.dev';
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${base}/</loc></url>\n  <url><loc>${base}/privacy</loc></url>\n  <url><loc>${base}/prem</loc></url>\n  <url><loc>${base}/about</loc></url>\n</urlset>\n`;
   await writeFile('dist/sitemap.xml', sitemap);
   const robots = await readFile('dist/robots.txt', 'utf8');

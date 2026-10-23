@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
-const origin = 'https://podium-air-website.pages.dev';
+const origin = 'https://podiumair.pages.dev';
 const pages = new Map([['index.html', '/'], ['privacy.html', '/privacy'], ['prem.html', '/prem'], ['about.html', '/about']]);
 const sitemap = readFileSync('dist/sitemap.xml', 'utf8');
 const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
@@ -21,7 +21,7 @@ for (const [file, path] of pages) {
   }
 }
 const home = readFileSync('index.html', 'utf8');
-assert.equal(home, execFileSync('git', ['show', 'd01008bb4da3e1b884644724e28d5216ee212d7f:index.html']).toString(), 'V2 homepage must remain byte-identical');
+assert.equal(home, execFileSync('git', ['show', 'd01008bb4da3e1b884644724e28d5216ee212d7f:index.html']).toString().replaceAll('podium-air-website.pages.dev', 'podiumair.pages.dev'), 'V2 homepage must remain byte-identical');
 const graph = schema(home)[0]['@graph'];
 const profile = schema(readFileSync('prem.html', 'utf8'))[0];
 assert.deepEqual(graph.find(n => n['@type'] === 'Person'), profile.mainEntity, 'Creator identity must agree between pages');

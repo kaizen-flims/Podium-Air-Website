@@ -13,7 +13,7 @@ const current = readFileSync('index.html', 'utf8');
 for (const pattern of [/<header[\s\S]*?<\/header>/, /<section class="hero[\s\S]*?<\/section>/, /<div id="intro-root"[^\n]+/]) assert.equal(current.match(pattern)[0], old.match(pattern)[0]);
 const meta = html => html.match(/<meta[^>]+>/g);
 // PR #18 approved new SEO metadata; keep all visual baselines above unchanged.
-const approvedSEO = execFileSync('git', ['show', '31a88875126165796dbf0c589b2c5ea4bd9d5c96:index.html']).toString();
+const approvedSEO = execFileSync('git', ['show', '31a88875126165796dbf0c589b2c5ea4bd9d5c96:index.html']).toString().replaceAll('podium-air-website.pages.dev', 'podiumair.pages.dev');
 // The approved social card is checked separately below.
 const unchangedMeta = html => meta(html).filter(tag => !/^<meta (?:property="og:image(?::type)?"|name="twitter:image") /.test(tag));
 assert.deepEqual(unchangedMeta(current), unchangedMeta(approvedSEO), 'Approved SEO metadata must stay unchanged');
@@ -26,7 +26,7 @@ const expectedSchema = schema(approvedSEO);
 const profile = schema(readFileSync('prem.html', 'utf8'));
 assert.equal(profile['@type'], 'ProfilePage');
 assert.equal(profile.mainEntity.name, 'Prem Das');
-assert.equal(profile.mainEntity['@id'], 'https://podium-air-website.pages.dev/prem#person');
+assert.equal(profile.mainEntity['@id'], 'https://podiumair.pages.dev/prem#person');
 assert.deepEqual(profile.mainEntity.sameAs, ['https://www.instagram.com/nottt.premm/', 'https://github.com/kaizen-flims']);
 expectedSchema['@graph'][0].creator = { '@id': profile.mainEntity['@id'] };
 expectedSchema['@graph'][2].maintainer = { '@id': profile.mainEntity['@id'] };
@@ -37,7 +37,7 @@ const seoBaseline = approvedSEO.slice(approvedSEO.indexOf('<body'));
 const currentBody = current.slice(current.indexOf('<body')).replace('<a href="prem.html" rel="author" aria-label="About Prem Das (@nottt.premm)">Prem</a>', 'Prem');
 assert.equal(currentBody, seoBaseline, 'Homepage visuals and functionality must remain unchanged');
 for (const kind of ['property="og:image"', 'name="twitter:image"']) {
-  assert(current.includes(`<meta ${kind} content="https://podium-air-website.pages.dev/assets/social-card-v2.png">`), `Missing approved ${kind} URL`);
+  assert(current.includes(`<meta ${kind} content="https://podiumair.pages.dev/assets/social-card-v2.png">`), `Missing approved ${kind} URL`);
 }
 assert(current.includes('<meta property="og:image:type" content="image/png">'), 'OG PNG type must be declared');
 const links = html => [...html.matchAll(/href="(https:\/\/github.com\/kaizen-flims\/Podium-Air\/releases[^"#]*)"/g)].map(m => m[1]).sort();
