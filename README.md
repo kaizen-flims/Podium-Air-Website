@@ -1,6 +1,6 @@
 # Podium Air Website
 
-The official consumer website for [Podium Air](https://github.com/kaizen-flims/Podium-Air). It is a small, dependency-free static site deployed at https://podium-air-website.pages.dev through the connected Cloudflare Pages project; a GitHub Pages workflow is also included.
+The official consumer website for [Podium Air](https://github.com/kaizen-flims/Podium-Air). It is a small, dependency-free static site deployed at https://podiumair.pages.dev through the connected Cloudflare Pages project; a GitHub Pages workflow is also included.
 
 ## Local preview
 
@@ -10,9 +10,9 @@ From this directory, run `python3 -m http.server 8080`, then open `http://localh
 
 The repository's **Settings → Pages → Build and deployment** source is **GitHub Actions**. Pushing to `main` runs `.github/workflows/pages.yml`, which builds `dist` and publishes it at [kaizen-flims.github.io/Podium-Air-Website](https://kaizen-flims.github.io/Podium-Air-Website/). The build copies only public site files; source and repository metadata outside that allowlist are not published. You can also start the workflow manually in the Actions tab.
 
-The workflow supplies `SITE_URL` for deployment-specific social image URLs. Cloudflare at `https://podium-air-website.pages.dev/` is the preferred search URL: both pages declare absolute canonicals there, and generated sitemap/robots discovery URLs use that same host even on the GitHub Pages mirror. Relative asset and navigation links still work at both a project path and a domain root. If the preferred domain changes, update the canonical links, homepage JSON-LD/`og:url`, and sitemap base in `scripts/build.mjs` together.
+The workflow supplies `SITE_URL` for deployment-specific social image URLs. Cloudflare at `https://podiumair.pages.dev/` is the preferred search URL: both pages declare absolute canonicals there, and generated sitemap/robots discovery URLs use that same host even on the GitHub Pages mirror. Relative asset and navigation links still work at both a project path and a domain root. If the preferred domain changes, update the canonical links, homepage JSON-LD/`og:url`, and sitemap base in `scripts/build.mjs` together.
 
-The homepage includes linked `WebSite`, `WebPage`, and `SoftwareApplication` JSON-LD for the existing app. It intentionally makes no rating or review claims; schema validity alone does not make it eligible for Google’s software-app rich result. SEO changes must preserve the page body, visuals, scripts, and assets. After an approved production deployment, inspect the canonical homepage in Search Console, request indexing, and check/submit `https://podium-air-website.pages.dev/sitemap.xml`.
+The homepage includes linked `WebSite`, `WebPage`, and `SoftwareApplication` JSON-LD for the existing app. It intentionally makes no rating or review claims; schema validity alone does not make it eligible for Google’s software-app rich result. SEO changes must preserve the page body, visuals, scripts, and assets. After an approved production deployment, inspect the canonical homepage in Search Console, request indexing, and check/submit `https://podiumair.pages.dev/sitemap.xml`.
 
 ## Search identity and static routing
 

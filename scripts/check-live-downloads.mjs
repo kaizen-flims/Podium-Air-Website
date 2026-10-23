@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
-const origin = 'https://podium-air-website.pages.dev';
+const origin = 'https://podiumair.pages.dev';
 let last;
 for (let attempt = 0; attempt < 12; attempt++) {
   try {
