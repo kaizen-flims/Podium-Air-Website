@@ -41,7 +41,7 @@
       "version": "Pending",
       "summary": "A Windows tester package will appear here when it has been selected and published to the tester release repository.",
       "notes": [
-        "Keep your regular installation until the tester package\u2019s install behaviour is confirmed."
+        "Keep your regular installation until the tester package’s install behaviour is confirmed."
       ],
       "focus": [],
       "knownIssues": [],
@@ -53,7 +53,7 @@
       "version": "Pending",
       "summary": "Apple Silicon and Intel downloads will be listed separately when dedicated tester packages are published.",
       "notes": [
-        "Choose the package for your Mac\u2019s processor when it becomes available."
+        "Choose the package for your Mac’s processor when it becomes available."
       ],
       "focus": [],
       "knownIssues": [],
@@ -72,6 +72,56 @@
         "iOS / Safari playback and authentication remain unresolved."
       ],
       "assets": []
+    },
+    "tv": {
+      "name": "Android TV / Google TV",
+      "label": "Podium Air TV Audit 1",
+      "status": "Build verification in progress",
+      "version": "0.1.0-tv-audit1",
+      "pr": "https://github.com/kaizen-flims/Podium-Air/pull/10",
+      "summary": "The first Podium Air TV audit brings remote navigation, a TV player and lyrics to Android TV and Google TV. The APK is being compiled and verified before its direct download is published.",
+      "notes": [
+        "Android TV / Google TV running Android 8 or later. This APK does not support Samsung Tizen, LG webOS, Roku or Apple TV.",
+        "Installs separately as com.podium.air.tv.audit. Keep your regular Podium Air app.",
+        "This is an optimized release build signed for testing. Automatic update polling is disabled.",
+        "Phone pairing is experimental and transfers a session over local HTTP. Use a trusted Wi-Fi network only."
+      ],
+      "focus": [
+        "D-pad focus, select and back buttons across Home, Search, Library and Settings.",
+        "Playback, seeking, queue controls, lyrics and sleep/wake recovery.",
+        "TV speakers, Bluetooth or receiver output; USB audio if supported by your device."
+      ],
+      "knownIssues": [
+        "No real-TV playback or sign-in success is claimed yet. Please include your TV model, Android version and remote type in reports.",
+        "Display refresh switching and spatial audio depend on the TV and connected audio hardware."
+      ],
+      "assets": [],
+      "checklist": {
+        "launch": {
+          "title": "Open & sign in",
+          "text": "Launch twice using your remote. Test sign-in and whether your session survives reopening."
+        },
+        "playback": {
+          "title": "Control the music",
+          "text": "Use the remote to play, pause, skip and seek. Check TV speakers and your connected audio output."
+        },
+        "library": {
+          "title": "Find your music",
+          "text": "Type a search, open an album or playlist and revisit your library using only the remote."
+        },
+        "offline": {
+          "title": "Check local playback",
+          "text": "If supported, try a test download or USB audio file. Check permission prompts and disconnected-network behavior."
+        },
+        "visuals": {
+          "title": "Follow the focus",
+          "text": "Check D-pad focus, back navigation, lyrics readability, logos and screen-edge clipping at your normal viewing distance."
+        },
+        "stability": {
+          "title": "Sleep & return",
+          "text": "Switch TV apps, sleep and wake the TV, then resume. Report crashes, missing audio and lost remote focus."
+        }
+      }
     }
   }
 }
