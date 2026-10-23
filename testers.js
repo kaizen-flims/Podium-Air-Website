@@ -4,6 +4,7 @@ let selected = 'android';
 let build;
 const platformButtons = [...document.querySelectorAll('[data-platform]')];
 const checks = [...document.querySelectorAll('.checklist input')];
+const defaultChecks = new Map(checks.map(c => [c.value, { title: c.parentElement.querySelector('strong').textContent, text: c.parentElement.querySelector('small').textContent }]));
 const el = (tag, text, className) => {
   const node = document.createElement(tag);
   if (text) node.textContent = text;
@@ -46,7 +47,8 @@ function renderBuild() {
     const meta = el('div', '', 'build-meta');
     if (build.date) meta.append(el('span', `Built ${build.date}`));
     if (build.commit) meta.append(el('span', `Commit ${build.commit.slice(0, 7)}`));
-    if (build.pr === 'https://github.com/kaizen-flims/Podium-Air/pull/6') { const pr = el('a', 'PR #6 notes ↗'); pr.href = build.pr; meta.append(pr); }
+    const prMatch = /^https:\/\/github\.com\/kaizen-flims\/Podium-Air\/pull\/([1-9]\d*)$/.exec(build.pr || '');
+    if (prMatch) { const pr = el('a', `PR #${prMatch[1]} notes ↗`); pr.href = build.pr; meta.append(pr); }
     card.append(meta);
   }
   const downloads = el('div', '', 'downloads');
@@ -67,6 +69,12 @@ function renderBuild() {
   if (build.knownIssues?.length) { const details = el('details'); details.append(el('summary', 'Known limitations & build status'), list(build.knownIssues)); card.append(details); }
   card.hidden = false;
   byId('build-status').textContent = `${build.name} · ${build.status}`;
+  for (const check of checks) {
+    const copy = build.checklist?.[check.value] || defaultChecks.get(check.value);
+    check.parentElement.querySelector('strong').textContent = copy.title;
+    check.parentElement.querySelector('small').textContent = copy.text;
+  }
+  document.querySelector('[name="device"]').placeholder = selected === 'tv' ? 'TV brand + model · Android TV version · remote' : 'e.g. Poco F7 · Android 15';
   restoreProgress();
   byId('report-label').hidden = true;
   byId('copy-report').disabled = true;
@@ -79,7 +87,7 @@ async function loadBuilds() {
     const response = await fetch('/testers-builds.json', { cache: 'no-store', signal: AbortSignal.timeout(10000) });
     if (!response.ok) throw new Error('Build list unavailable');
     const data = await response.json();
-    if (data.schemaVersion !== 1 || !['android', 'windows', 'macos', 'web'].every(p => data.platforms?.[p]?.name && Array.isArray(data.platforms[p].assets))) throw new Error('Invalid build list');
+    if (data.schemaVersion !== 1 || !['android', 'tv', 'windows', 'macos', 'web'].every(p => data.platforms?.[p]?.name && Array.isArray(data.platforms[p].assets))) throw new Error('Invalid build list');
     manifest = data; renderBuild();
   } catch {
     byId('build-card').hidden = true;

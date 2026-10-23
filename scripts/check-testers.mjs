@@ -8,7 +8,7 @@ assert(!readFileSync('dist/sitemap.xml', 'utf8').includes('/testers'));
 assert(!/href=["'][^"']*testers/.test(readFileSync('dist/index.html','utf8')), 'No homepage link to the hub');
 assert(readFileSync('dist/testers.js', 'utf8').includes("cache: 'no-store'"));
 const builds = JSON.parse(readFileSync('dist/testers-builds.json', 'utf8'));
-for (const key of ['android','windows','macos','web']) {
+for (const key of ['android','tv','windows','macos','web']) {
   const b = builds.platforms[key];
   assert(b.name && b.status && b.version);
   assert(Array.isArray(b.assets));
