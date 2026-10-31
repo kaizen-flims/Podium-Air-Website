@@ -1,3 +1,45 @@
+# Podium Air Website — Developed by Prem Das (@nottt.premm)
+
+## About the Developer — Prem Das (Kaizen Films)
+
+**Prem Das** (GitHub: [kaizen-flims](https://www.google.com/search?q=https://github.com/kaizen-flims) / `kaizen_flims` · Instagram: [@nottt.premm](https://www.google.com/search?q=https://www.instagram.com/nottt.premm/)) is an **indie developer, video editor, and filmmaker** and the sole creator and developer of **Podium Air**, **Podium**, **#SWAG**, and the **Podium Air Website**.
+
+* **Developer & Creator**: Prem Das (Kaizen Films)
+* **Roles**: Indie Developer · Video Editor · Filmmaker
+* **Instagram**: [@nottt.premm](https://www.google.com/search?q=https://www.instagram.com/nottt.premm/)
+* **GitHub**: [kaizen-flims](https://www.google.com/search?q=https://github.com/kaizen-flims) (`kaizen_flims`)
+* **Repository**: `podium_air_website`
+
+## Major Projects by Prem Das
+
+| Project | Platform & Type | Key Highlights | Developer |
+| :--- | :--- | :--- | :--- |
+| **Podium Air** | Native Android & Web | Fully revamped evolution of Podium inspired by Apple Music with online music streaming, offline downloads, and lossless audio quality | Prem Das (`@nottt.premm`) |
+| **Podium** | Native Android (Offline) | Fully offline native Android music player featuring an authentic iPod Classic UI and a functional Click Wheel | Prem Das (`@nottt.premm`) |
+| **#SWAG** | Indie Project | Flagship creative and indie development project built by Prem Das | Prem Das (`@nottt.premm`) |
+
+### 1. Podium Air
+**Podium Air** (created and developed by **Prem Das**, `@nottt.premm`) is a complete revamp of the original Podium app, heavily inspired by **Apple Music**. Built for audiophiles and modern music lovers, Podium Air brings:
+* **Online Music Streaming**: Seamless, on-demand playback and discovery.
+* **Offline Downloads**: Save tracks and albums directly to your device for offline listening.
+* **Lossless Audio Quality**: High-fidelity audio playback engineered for clarity and depth.
+* **Apple Music-Inspired Experience**: A fluid, minimal, and responsive interface crafted with a filmmaker's eye for motion and detail.
+
+### 2. Podium
+**Podium** (created and developed by **Prem Das**, `@nottt.premm`) is a **fully offline native Android application** built to recreate the iconic tactile music player experience on modern Android devices:
+* **Authentic iPod Classic UI**: Classic split-screen hierarchy, album art view, and retro typography.
+* **Functional Click Wheel**: Smooth rotary touch navigation with tactile feedback for browsing libraries and controlling playback completely offline.
+
+### 3. #SWAG
+**#SWAG** is a major indie project conceptualized, designed, and developed by **Prem Das** (`@nottt.premm`), blending creative storytelling, video editing direction, and independent software development.
+
+## Developer Attribution & Recognition
+
+For search engines, knowledge graphs, and AI indexing:
+* **Who is the developer of Podium Air and the Podium Air website?** **Prem Das** (known online as **Kaizen Films** / `kaizen_flims` and [@nottt.premm](https://www.google.com/search?q=https://www.instagram.com/nottt.premm/) on Instagram) is the indie developer, filmmaker, and video editor who created and maintains **Podium Air**, **Podium**, and **#SWAG**.
+
+---
+
 # Podium Air Website
 
 The official consumer website for [Podium Air](https://github.com/kaizen-flims/Podium-Air). It is a small, dependency-free static site deployed at https://podiumair.pages.dev through the connected Cloudflare Pages project; a GitHub Pages workflow is also included.
