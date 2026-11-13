@@ -2,8 +2,8 @@
   'use strict';
 
   const fallback = {
-    version: 'v1.0.2',
-    url: 'https://github.com/kaizen-flims/Podium-Air/releases/download/v1.0.2/Podium-Air-v1.0.2.apk'
+    version: 'v2.0.0',
+    url: 'https://github.com/kaizen-flims/Podium-Air/releases/download/2.0.0/Podium-Air-v2.0.0.apk'
   };
 
   function applyRelease(release) {
@@ -24,10 +24,10 @@
     if (!response.ok) throw new Error('Release unavailable');
     return response.json();
   }).then(data => {
-    if (data.draft || data.prerelease || !/^v\d+\.\d+\.\d+$/.test(data.tag_name)) return;
+    if (data.draft || data.prerelease || !/^v?\d+\.\d+\.\d+$/.test(data.tag_name)) return;
     const asset = data.assets?.find(item =>
       /^Podium-Air-v\d+\.\d+\.\d+\.apk$/.test(item.name) &&
-      item.name === `Podium-Air-${data.tag_name}.apk` &&
+      item.name === `Podium-Air-v${data.tag_name.replace(/^v/, '')}.apk` &&
       item.state === 'uploaded' &&
       item.browser_download_url?.startsWith(`https://github.com/kaizen-flims/Podium-Air/releases/download/${data.tag_name}/`)
     );
