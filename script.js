@@ -7,11 +7,15 @@
   };
 
   function applyRelease(release) {
+    const version = release.version.startsWith('v') ? release.version : `v${release.version}`;
+    document.querySelectorAll('.hero-release-pill .release-version').forEach(el => {
+      el.textContent = `Android ${version}`;
+    });
     document.querySelectorAll('.download-link[data-platform="android"]').forEach(link => {
       link.href = release.url;
-      link.setAttribute('aria-label', `Download Podium Air ${release.version} APK for Android`);
+      link.setAttribute('aria-label', `Download Podium Air ${version} APK for Android`);
     });
-    document.querySelectorAll('.version-text').forEach(el => { el.textContent = release.version; });
+    document.querySelectorAll('.version-text').forEach(el => { el.textContent = version; });
   }
 
   // A verified, signed stable release remains usable if the GitHub API is blocked or rate-limited.
